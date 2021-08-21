@@ -1,7 +1,7 @@
 let WINNING_COMBINATIONS = []
 
-matrixYX(11, WINNING_COMBINATIONS)
-matrixCross(11, WINNING_COMBINATIONS)
+matrixYX(12, WINNING_COMBINATIONS)
+matrixCross(12, WINNING_COMBINATIONS)
 
 // Hàm này dùng để khởi tạo tất cả các dòng có thể xảy ra trong mảng
 function matrixYX(colum, arrMap){

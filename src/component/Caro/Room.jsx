@@ -3,6 +3,23 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router';
 import { getValueCaro, getRoomCaro } from '../../features/caro/roomCaro';
 import socket from '../../socket/socket'
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+    hidden: {
+        opacity: 0,
+        x: '20rem'
+    },
+    visible: {
+        opacity: 1,
+        x: 0,
+        transition: { type: 'spring', delay: 0.5 }
+    },
+    exit: {
+        x: "-20vh",
+        transition: { ease: 'easeInOut' }
+    }
+};
 
 function Room(props) {
 
@@ -30,7 +47,7 @@ function Room(props) {
 
     const findRoom = () => {
 
-        if (!room){
+        if (!room) {
             return
         }
 
@@ -48,11 +65,20 @@ function Room(props) {
     }
 
     return (
-        <div>
-            <div onClick={createRoom} className="btn btn-primary">Tạo phòng</div>
-            <div>
-                <input type="text" onChange={(e) => setRoom(e.target.value)} className="form-control w-25" />
-                <div onClick={findRoom} className="btn btn-success">Tìm phòng</div>
+        <div className="layout-room-caro">
+            <div className="group-join-room">
+                <motion.div className="width-join-room"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                >
+                    <div onClick={createRoom} className="btn-create-room">Tạo Phòng</div>
+                    <div className="box-find-room">
+                        <input placeholder="Tìm Phòng" type="text" onChange={(e) => setRoom(e.target.value)} className="input-find-room" />
+                        <div onClick={findRoom} className="btn-find-room"><i className="fa fa-search"></i></div>
+                    </div>
+                </motion.div>
             </div>
         </div>
     );

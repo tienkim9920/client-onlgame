@@ -1,0 +1,36 @@
+
+.layout-header{
+    font-family: Quicksand,sans-serif;
+    background-color: #fff;
+    padding: .3rem;
+}
+
+.logo-header{
+    display: flex;
+}
+
+.logo-header h3{
+    margin-top: .8rem;
+    margin-left: .5rem;
+    color: #3A3D47;
+}
+
+.logo-header img{
+    width: 60px;
+}
+
+.login-header{
+    margin-top: .7rem;
+    background-color: #4e525e;
+    padding: .5rem 1.2rem;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: .9rem;
+    transition: all .5s ease-in-out;
+}
+
+.login-header:hover{
+    color: #fff;
+    background-color: #3A3D47;
+}

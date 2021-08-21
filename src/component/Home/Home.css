@@ -1,0 +1,67 @@
+
+.layout-home{
+    padding: 2rem;
+}
+
+.group-home-title{
+    text-align: center;
+}
+
+.group-home-title h1{
+    font-family: Quicksand, sans-serif;
+}
+
+.line-title-home{
+    /* width: 100%;
+    height: 5px;
+    background-color: #3A3D47; */
+    display: flex;
+    justify-content: center;
+}
+
+.line-title img {
+    width: 80px;
+    height: 80px;
+}
+
+.line-title{
+    display: flex;
+}
+
+.show-line{
+    width: 170px;
+    height: 5px;
+    background-color: #3A3D47;
+    border-radius: 10px;
+    margin-top: 2.5rem;
+}
+
+.group-list-game{
+    padding: 2rem 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.card{
+    margin: auto !important;
+    border: none !important;
+    box-shadow: 0 0 0.25em 0.25em rgba(206, 206, 206, 0.25);
+    padding: 1rem !important;
+    width: 85%;
+}
+
+@media only screen and (max-width: 600px) {
+    .show-line{
+        width: 150px !important;
+    }
+
+    .group-list-game{
+        grid-template-columns: auto !important;
+        padding: 0rem 0rem 2rem 0rem !important;
+    }
+
+    .card{
+        width: 100% !important;
+        margin-top: 2rem !important;
+    }
+}

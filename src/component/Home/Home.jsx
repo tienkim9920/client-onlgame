@@ -3,7 +3,7 @@ import './Home.css'
 import caro from '../../global/logo-caro.png'
 import snake from '../../global/logo-snake.png'
 import tetris from '../../global/logo-tetris.png'
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { motion } from 'framer-motion'
 
 const containerVariants = {
@@ -17,6 +17,20 @@ const containerVariants = {
 }
 
 function Home(props) {
+
+    const history = useHistory()
+
+    const playCaro = () => {
+
+        if (sessionStorage.getItem('userId')){
+            history.push('/caro')
+            return
+        }
+
+        history.push('/signin')
+
+    }
+
     return (
         <div className="layout-home">
             <motion.div className="container"
@@ -32,7 +46,7 @@ function Home(props) {
                             <h5 className="card-title">TIC TAC TOE</h5>
                             <p className="card-text">Bạn muốn thể hiện bản thân với mọi người 
                             thì ngay bây giờ hãy cùng rủ bạn vào trải nghiệm tựa game caro này đi nào.</p>
-                            <Link to="/caro" className="btn btn-primary">Bắt đầu thôi</Link>
+                            <div onClick={playCaro} className="btn btn-primary">Bắt đầu thôi</div>
                         </div>
                     </div>
                     <div className="card">

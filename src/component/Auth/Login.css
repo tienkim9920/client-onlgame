@@ -1,0 +1,97 @@
+
+.layout-section-login{
+    background-color: red;
+    width: 33%;
+    margin: 2rem auto 3rem auto;
+    background-color: #fff;
+    box-shadow: 0 0 0.25em 0.25em rgba(206, 206, 206, 0.25);
+    border-radius: 5px;
+    padding: 0rem 0 3rem 0;
+    overflow: hidden;
+}
+
+.login-title{
+    text-align: center;
+    text-transform: uppercase;
+    font-family: Quicksand,sans-serif;
+    padding: 4rem;
+    background-color: #4e525e;
+    color: #fff;
+    clip-path: ellipse(60% 67% at 50% 25%);
+    
+}
+
+.form-login{
+    margin-top: 1.5rem;
+    height: 3rem;
+}
+
+.input-login{
+    width: 100%;
+    padding: .5rem 1.2rem;
+    color: #000;
+    background-color: #f0f0f0;
+    outline: none;
+    border: none;
+    border-radius: 50px;
+}
+
+.login-error{
+    color: #ff5858;
+    padding: .3rem .7rem;
+}
+
+.mr-login{
+    margin: auto;
+    width: 80%;
+}
+
+.btn-login{
+    text-align: center;
+    padding: .45rem 1.5rem;
+    color: #fff;
+    background-color: #4e525e;
+    border-radius: 50px;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+}
+
+.link-signup{
+    display: flex;
+    justify-content: flex-end;
+}
+
+.link-signup a{
+    text-decoration: none;
+    color: #3a3d47;
+}
+
+.link-signup a:hover{
+    color: #3a3d47;
+}
+
+.form-login img{
+    width: 75px;
+    height: 75px;
+}
+
+.profile-avatar{
+    text-align: center;
+}
+
+.profile-avatar img{
+    width: 100px;
+    height: 88px;
+    border-radius: 50%;
+}
+
+#fileUpload{
+    display: none;
+}
+
+@media only screen and (max-width: 600px){
+    .layout-section-login{
+        width: 93%;
+    }
+}

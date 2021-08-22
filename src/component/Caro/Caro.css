@@ -216,7 +216,10 @@ hr{
   }
   
   .cell.x::before,
-  .cell.x::after,
+  .cell.x::after{
+    background-color: rgb(241, 60, 60);
+  }
+
   .cell.o::before {
     background-color: black;
   }
@@ -282,10 +285,11 @@ hr{
     color: white;
     font-size: 5rem;
     flex-direction: column;
+    z-index: 999;
   }
   
   .winning-message button {
-    font-size: 3rem;
+    font-size: 2rem;
     background-color: white;
     border: 1px solid black;
     padding: .25em .5em;
@@ -367,6 +371,63 @@ hr{
   background-color: #3A3D47;
 }
 
+.width-join-room-phone{
+  display: none;
+}
+
+.header-caro-info{
+  display: flex;
+  justify-content: space-between;
+}
+
+.spinner {
+  margin: 0 auto;
+  width: 70px;
+  text-align: center;
+}
+
+/* --------------------------------Loading-------------------------------- */
+.spinner > div {
+  width: 18px;
+  height: 18px;
+  background-color: #333;
+
+  border-radius: 100%;
+  display: inline-block;
+  -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.spinner .bounce1 {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+@-webkit-keyframes sk-bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0) }
+  40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% { 
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 40% { 
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+  }
+}
+/* --------------------------------Loading-------------------------------- */
+
+.msg-info-win{
+  text-align: center;
+  font-size: 3rem;
+}
 
 @media only screen and (max-width: 600px){
   .cell {
@@ -377,6 +438,64 @@ hr{
   .wrapper-caro{
     grid-template-columns: 1fr;
   }
+
+  .width-join-room-phone{
+    display: block !important;
+    width: 85%;
+  }
+
+  .width-join-room{
+    display: none !important;
+  }
+
+  .btn-find-room{
+    left: 73.5%;
+  }
+
+  .wrapper-caro{
+    padding: 1rem !important;
+    margin: 0 1rem;
+  }
+
+  .cell {
+    width: 29px !important;
+    height: 29px !important;
+  }
+
+  .group-caro-board{
+    border: none !important;
+  }
+
+  .header-caro-info{
+    display: block !important;
+  }
+
+  .box-caro-user{
+    padding: 1rem 0;
+  }
+
+  .user-list{
+    grid-template-columns: auto !important;
+  }
+
+  .user-show {
+    border-right: none !important;
+    padding-right: none !important;
+    margin: auto !important;
+  }
+
+  .user-caro:last-child {
+    border-bottom: 1px solid #e2e2e2;
+  }
+
+  .input-send-message{
+    width: 80% !important;
+  }
+  
+  .btn-send-message{
+    left: 81% !important;
+  }
+
 }
 
 

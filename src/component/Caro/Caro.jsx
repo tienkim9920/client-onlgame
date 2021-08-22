@@ -6,6 +6,8 @@ import WINNING_COMBINATIONS from './Algorithm';
 import { motion } from 'framer-motion';
 import user1 from '../../global/user1.jpg'
 import user2 from '../../global/user2.jpg'
+import UserAPI from '../../api/UserAPI';
+import avatar from '../../global/avt.jpg'
 
 const X_CLASS = 'x'
 const O_CLASS = 'o'
@@ -28,7 +30,7 @@ const containerVariants = {
 
 function Caro(props) {
 
-    const [flag, setFlag] = useState(null)
+    const [flag, setFlag] = useState(false)
 
     const status = useSelector((state) => state.room.value)
 
@@ -40,14 +42,21 @@ function Caro(props) {
     const [message, setMessage] = useState('')
 
     // list messages
-    const [messages, setMessages] = useState([
-        { id: 1, message: 'Chào bạn!', category: 'send' },
-        { id: 2, message: 'Hell guy!', category: 'receive' },
-        { id: 3, message: 'Chào bạn!', category: 'send' },
-        { id: 4, message: 'Hell guy!', category: 'receive' },
-    ])
+    const [messages, setMessages] = useState([])
 
     const messagesEndRef = useRef(null)
+
+    const [user, setUser] = useState(null)
+
+    const [image, setImage] = useState(null)
+
+    const [another, setAnother] = useState(null)
+
+    const [imageAnother, setImageAnother] = useState(null)
+
+    const [pointX, setpointX] = useState(0)
+
+    const [pointO, setpointO] = useState(0)
 
     // Đầu tiên khởi chạy hàm này
     useEffect(() => {
@@ -55,14 +64,14 @@ function Caro(props) {
         // Hàm này kiểm tra X or O để hiển thị hover cho người chơi
         setBoardHoverClass()
 
-        // Hàm này kiểm tra xem thử ai được quyền đi trước
-        flagAllow()
+        // Hàm này dùng để get user
+        getDetail()
 
     }, [])
 
     useEffect(() => {
 
-        // Hàm này dùng để nhận socket từ người chơi khác
+        // Hàm này dùng để nhận socket đánh cờ từ người chơi khác
         socket.on('position', (data) => {
             console.log(data)
 
@@ -78,6 +87,8 @@ function Caro(props) {
             // Hàm này dùng để kiểm tra
             if (checkWin(currentClass, cellElements)) {
                 setMessWin(`${data.status.toUpperCase()} đã chiến thắng`)
+
+                checkPoint(data.status)
             }
 
             // Thay đổi trạng thái cho phép đi cờ
@@ -85,8 +96,34 @@ function Caro(props) {
 
         })
 
+        // Nhận socket tham gia phòng từ người khác
+        socket.on('joinRoom', (data) => {
+
+            setAnother(data)
+            setImageAnother(data.image)
+            setFlag(true)
+
+            const returnData = {
+                _id: sessionStorage.getItem('userId'),
+                room
+            }
+
+            // Gửi ngược socket trả lại cho đối phương
+            socket.emit('returnRoom', returnData)
+
+        })
+
+        // Nhận socket trả lại từ đối phương
+        socket.on('returnRoom', (data) => {
+
+            setAnother(data)
+            setImageAnother(data.image)
+
+        })
+
     }, [])
 
+    // Hàm này sẽ gửi socket khi đối thủ đánh cờ
     const handlerClick = (e, i) => {
 
         if (!flag) {
@@ -100,6 +137,8 @@ function Caro(props) {
         const cellElements = document.querySelectorAll('[data-cell]')
         if (checkWin(currentClass, cellElements)) {
             setMessWin(`${status.toUpperCase()} đã chiến thắng`)
+
+            checkPoint(status)
         }
 
         // Gửi socket với data có vị trí ô cờ, room, X or O
@@ -114,6 +153,16 @@ function Caro(props) {
 
     }
 
+    // Hàm này dùng để kiểm tra điểm chiến thắng
+    function checkPoint(status){
+        if (status === 'x'){
+            setpointX(pointX + 1)
+        }else{
+            setpointO(pointO + 1)
+        }
+    }
+
+    // Hàm này dùng để chơi lại
     const handleRestart = () => {
 
         setMessWin(null)
@@ -127,14 +176,7 @@ function Caro(props) {
 
     }
 
-    function flagAllow() {
-        if (status === 'x') {
-            setFlag(true)
-            return
-        }
-        setFlag(false)
-    }
-
+    // Hàm này hiển thị hover
     function setBoardHoverClass() {
         const board = document.getElementById('board')
 
@@ -145,6 +187,7 @@ function Caro(props) {
         }
     }
 
+    // Hàm này đánh dấu vị trí cờ
     function placeMark(cell, currentClass) {
         cell.classList.add(currentClass)
     }
@@ -158,11 +201,12 @@ function Caro(props) {
         })
     }
 
+    // Hàm này dùng để gửi tin nhắn
     const handlerMessage = () => {
         console.log(message)
 
         let newMessages = messages
-        
+
         const data = {
             id: Math.random().toString(),
             message: message,
@@ -178,8 +222,19 @@ function Caro(props) {
         scrollToBottom()
     }
 
+    // Hàm này hiển thị tin nhắn ở cuối
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+
+    async function getDetail() {
+
+        const res = await UserAPI.getDetail(sessionStorage.getItem('userId'))
+
+        setUser(res)
+        setImage(res.image)
+
+
     }
 
     return (
@@ -201,7 +256,7 @@ function Caro(props) {
                     {
                         messWin && (
                             <div className="winning-message show" id="winningMessage">
-                                <div>{messWin}</div>
+                                <div className="msg-info-win">{messWin}</div>
                                 <button onClick={handleRestart}>Restart</button>
                             </div>
                         )
@@ -210,9 +265,9 @@ function Caro(props) {
                 </div>
                 <div className="group-caro-user">
                     <div className="box-caro-user">
-                        <div className="d-flex justify-content-between">
+                        <div className="header-caro-info">
                             <h5>Số phòng: {room}</h5>
-                            <h5>Tỉ số: x thắng 1 - o thắng 2</h5>
+                            <h5>Tỉ số: x thắng {pointX} - o thắng {pointO}</h5>
                         </div>
 
                         <hr />
@@ -221,31 +276,62 @@ function Caro(props) {
                                 <div className="user-caro">
                                     <div className="d-flex">
                                         <div>
-                                            <img className="image-user-caro" src={user1} alt="" />
+                                            {
+                                                !image ? (<img className="image-user-caro" src={avatar} alt="" />) :
+                                                    (<img className="image-user-caro" src={image} alt="" />)
+                                            }
                                         </div>
-                                        <h3 className="name-user-caro">Nguyễn Kim Tiền</h3>
+                                        {
+                                            user && <h3 className="name-user-caro">{user.fullname}</h3>
+                                        }
                                     </div>
-                                    <h5 className="allow-play">Tới lượt chơi của bạn!</h5>
+                                    {flag ? (<h5 className="allow-play">Tới lượt chơi của bạn!</h5>) :
+                                        <h5 className="allow-play">Bạn chưa tới lượt chơi!</h5>}
                                 </div>
-                                <div className="user-caro">
-                                    <div className="d-flex">
-                                        <div>
-                                            <img className="image-user-caro" src={user2} alt="" />
+                                {
+                                    !another && (
+                                        <div className="user-caro">
+                                            <div className="text-center p-5">
+                                                <div className="spinner">
+                                                    <div className="bounce1"></div>
+                                                    <div className="bounce2"></div>
+                                                    <div className="bounce3"></div>
+                                                </div>
+                                                <h4>Đang chờ đối thủ</h4>
+                                            </div>
                                         </div>
-                                        <h3 className="name-user-caro">Bae Suzy</h3>
-                                    </div>
-                                    <h5 className="allow-play">Tới lượt chơi của bạn!</h5>
-                                </div>
+                                    )
+                                }
+                                {
+                                    another && (
+                                        <div className="user-caro">
+                                            <div className="d-flex">
+                                                <div>
+                                                    {
+                                                        !imageAnother ? (<img className="image-user-caro" src={avatar} alt="" />) :
+                                                            (<img className="image-user-caro" src={imageAnother} alt="" />)
+                                                    }
+                                                </div>
+                                                {
+                                                    another && <h3 className="name-user-caro">{another.fullname}</h3>
+                                                }
+                                            </div>
+                                            { !flag ? (<h5 className="allow-play">Đang chờ đối thủ đánh cờ!</h5>) :
+                                                <h5 className="allow-play">Đối thủ đang chờ bạn đấy!</h5>}
+                                        </div>
+                                    )
+                                }
+
                             </div>
                             <div className="user-chat">
                                 <div className="box-chat">
                                     {
                                         messages && messages.map((value) => (
                                             <div className="message" key={value.id}>
-                                                <div className={value.category === 'send' ? 'text-end' 
+                                                <div className={value.category === 'send' ? 'text-end'
                                                     : 'text-start'}>
-                                                    <span className={value.category === 'send' ? 'padding-message-send' 
-                                                    : 'padding-message-receive'}>{value.message}</span>
+                                                    <span className={value.category === 'send' ? 'padding-message-send'
+                                                        : 'padding-message-receive'}>{value.message}</span>
                                                 </div>
                                             </div>
                                         ))
@@ -253,8 +339,8 @@ function Caro(props) {
                                     <div ref={messagesEndRef} />
                                 </div>
                                 <div className="box-send-message">
-                                    <input onChange={(e) => setMessage(e.target.value)} className="input-send-message" 
-                                    type="text" placeholder="Nhập tin nhắn" value={message} />
+                                    <input onChange={(e) => setMessage(e.target.value)} className="input-send-message"
+                                        type="text" placeholder="Nhập tin nhắn" value={message} />
                                     <div onClick={handlerMessage} className="btn-send-message"><i className="fa fa-paper-plane"></i></div>
                                 </div>
                             </div>

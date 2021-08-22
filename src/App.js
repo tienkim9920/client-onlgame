@@ -7,6 +7,9 @@ import Room from "./component/Caro/Room";
 import Home from "./component/Home/Home";
 import Header from "./component/Header/Header";
 import logo from "./global/logo.png";
+import SignIn from "./component/Auth/SignIn";
+import SignUp from "./component/Auth/SignUp";
+import Profile from "./component/Auth/Profile";
 
 function App() {
   return (
@@ -28,6 +31,9 @@ function App() {
             <Route exact path="/" component={Home} />
             <Route exact path="/caro" component={Room} />
             <Route path="/caro/board" component={Caro} />
+            <Route path="/signin" component={SignIn} />
+            <Route path="/signup" component={SignUp} />
+            <Route path="/profile" component={Profile} />
           </Switch>
           <Footer />
         {/* </AnimatePresence> */}

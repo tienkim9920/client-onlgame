@@ -1,6 +1,11 @@
 body{
-    background-color: #f0f0f0;
+    /* background-color: #f0f0f0; */
     font-family: 'Raleway', sans-serif;
+    background-image: url(./global/bg.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
 }
 
 .group-home-title{

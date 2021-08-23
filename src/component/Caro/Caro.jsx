@@ -186,14 +186,14 @@ function Caro(props) {
     // nên ta phải dùng thêm useEffect để cập nhật lại state
     useEffect(() => {
         if (clone){
-            setMessages([...messages, clone])
+            setMessages(prev => [...prev, clone])
         }
     }, [clone])
 
 
     useEffect(() => {
         if (clonePosition){
-            setPosition([...position, clonePosition])
+            setPosition(prev => [...prev, clonePosition])
         }
     }, [clonePosition])
 
@@ -216,7 +216,7 @@ function Caro(props) {
         }
 
         // set state vị trí ô cờ đã được đánh
-        setPosition([...position, i])
+        setPosition(prev => [...prev, i])
 
         const currentClass = status === 'o' ? O_CLASS : X_CLASS
         placeMark(i, currentClass)
@@ -335,7 +335,7 @@ function Caro(props) {
 
         socket.emit('send', data)
 
-        setMessages([...messages, data])
+        setMessages(prev => [...prev, data])
 
         setMessage('')
 

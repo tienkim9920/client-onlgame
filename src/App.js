@@ -1,6 +1,5 @@
 import "./App.css";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-// import { AnimatePresence } from "framer-motion";
 import Caro from "./component/Caro/Caro";
 import Footer from "./component/Footer/Footer";
 import Room from "./component/Caro/Room";
@@ -15,7 +14,6 @@ function App() {
   return (
     <div className="App">
       <BrowserRouter>
-        {/* <AnimatePresence exitBeforeEnter> */}
           <Header />
           <div className="group-home-title">
             <h1>Cùng chơi nào</h1>
@@ -36,7 +34,6 @@ function App() {
             <Route path="/profile" component={Profile} />
           </Switch>
           <Footer />
-        {/* </AnimatePresence> */}
       </BrowserRouter>
     </div>
   );

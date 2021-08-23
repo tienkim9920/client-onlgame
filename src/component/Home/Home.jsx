@@ -3,7 +3,7 @@ import './Home.css'
 import caro from '../../global/logo-caro.png'
 import snake from '../../global/logo-snake.png'
 import tetris from '../../global/logo-tetris.png'
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { motion } from 'framer-motion'
 
 const containerVariants = {

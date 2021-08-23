@@ -4,10 +4,9 @@ import socket from '../../socket/socket';
 import './Caro.css'
 import WINNING_COMBINATIONS from './Algorithm';
 import { motion } from 'framer-motion';
-import user1 from '../../global/user1.jpg'
-import user2 from '../../global/user2.jpg'
 import UserAPI from '../../api/UserAPI';
 import avatar from '../../global/avt.jpg'
+import { useHistory } from 'react-router-dom'
 
 const X_CLASS = 'x'
 const O_CLASS = 'o'
@@ -29,6 +28,8 @@ const containerVariants = {
 };
 
 function Caro(props) {
+
+    const history = useHistory()
 
     const [flag, setFlag] = useState(false)
 
@@ -58,8 +59,22 @@ function Caro(props) {
 
     const [pointO, setpointO] = useState(0)
 
+    const [allowPlay, setAllowPlay] = useState(true)
+
+    const [load, setLoad] = useState(null)
+
+    const [clone, setClone] = useState(null)
+
+    const [position, setPosition] = useState([])
+
+    const [clonePosition, setClonePosition] = useState(null)
+
     // Đầu tiên khởi chạy hàm này
     useEffect(() => {
+
+        if (!room) {
+            window.location.href = '/caro';
+        }
 
         // Hàm này kiểm tra X or O để hiển thị hover cho người chơi
         setBoardHoverClass()
@@ -75,20 +90,22 @@ function Caro(props) {
         socket.on('position', (data) => {
             console.log(data)
 
-            // Lấy toàn bộ các ô cờ
-            const cellElements = document.querySelectorAll('[data-cell]')
+            setClonePosition(data.position)
 
             // Kiểm tra xem người chơi đó là X hay O
             const currentClass = data.status === 'o' ? O_CLASS : X_CLASS
 
             // Đánh dấu ô cờ mà người chơi khác đã đi
-            placeMark(cellElements[data.position], currentClass)
+            placeMark(data.position, currentClass)
 
             // Hàm này dùng để kiểm tra
+            const cellElements = document.querySelectorAll('[data-cell]')
             if (checkWin(currentClass, cellElements)) {
                 setMessWin(`${data.status.toUpperCase()} đã chiến thắng`)
 
                 checkPoint(data.status)
+
+                setAllowPlay(false)
             }
 
             // Thay đổi trạng thái cho phép đi cờ
@@ -121,24 +138,97 @@ function Caro(props) {
 
         })
 
+        // Nhận socket replay trận đấu
+        socket.on('replay', () => {
+            setAllowPlay(true)
+        })
+
+        // Nhận socket leave room
+        socket.on('leaveRoom', () => {
+
+            // Cho trạng thái trở về ban đầu
+            if (status === 'x') {
+                resetBoardgame()
+                setImageAnother(null)
+                setAnother(null)
+                setpointX(0)
+                setpointO(0)
+                setFlag(false)
+            } else {
+                history.push('/caro')
+            }
+
+        })
+
+        // Nhận socket tin nhắn
+        socket.on('receive', (data) => {
+            setClone(data)
+        })
+
+        // Nhận socket bấm phím
+        socket.on('keyboard', (data) => {
+
+            if (data.message === '') {
+                setLoad(false)
+                return
+            }
+
+            if (data.message !== '' && !load) {
+                setLoad(true)
+                scrollToBottom()
+            }
+
+        })
+
     }, [])
+
+    // Vì react khi thay đổi state thì mặc định state nó vẫn không thay đổi về bản chất
+    // nên ta phải dùng thêm useEffect để cập nhật lại state
+    useEffect(() => {
+        if (clone){
+            setMessages([...messages, clone])
+        }
+    }, [clone])
+
+
+    useEffect(() => {
+        if (clonePosition){
+            setPosition([...position, clonePosition])
+        }
+    }, [clonePosition])
+
 
     // Hàm này sẽ gửi socket khi đối thủ đánh cờ
     const handlerClick = (e, i) => {
+
+        // Kiểm tra xem thử ô cờ này đã được đánh vào hay chưa
+        const check = position.every(value => {
+            return value !== i
+        })
+
+        // Nếu được đánh vào rồi thì return
+        if (!check){
+            return
+        }
 
         if (!flag) {
             return
         }
 
-        const cell = e.target
+        // set state vị trí ô cờ đã được đánh
+        setPosition([...position, i])
+
         const currentClass = status === 'o' ? O_CLASS : X_CLASS
-        placeMark(cell, currentClass)
+        placeMark(i, currentClass)
 
         const cellElements = document.querySelectorAll('[data-cell]')
         if (checkWin(currentClass, cellElements)) {
             setMessWin(`${status.toUpperCase()} đã chiến thắng`)
 
             checkPoint(status)
+
+            setAllowPlay(false)
+
         }
 
         // Gửi socket với data có vị trí ô cờ, room, X or O
@@ -154,10 +244,10 @@ function Caro(props) {
     }
 
     // Hàm này dùng để kiểm tra điểm chiến thắng
-    function checkPoint(status){
-        if (status === 'x'){
+    function checkPoint(status) {
+        if (status === 'x') {
             setpointX(pointX + 1)
-        }else{
+        } else {
             setpointO(pointO + 1)
         }
     }
@@ -167,13 +257,19 @@ function Caro(props) {
 
         setMessWin(null)
 
+        resetBoardgame()
+
+        socket.emit('replay', room)
+
+    }
+
+    function resetBoardgame() {
         const cellElements = document.querySelectorAll('[data-cell]')
 
         cellElements.forEach(cell => {
             cell.classList.remove(X_CLASS)
             cell.classList.remove(O_CLASS)
         })
-
     }
 
     // Hàm này hiển thị hover
@@ -188,7 +284,10 @@ function Caro(props) {
     }
 
     // Hàm này đánh dấu vị trí cờ
-    function placeMark(cell, currentClass) {
+    function placeMark(position, currentClass) {
+        // Lấy toàn bộ các ô cờ
+        const cell = document.querySelectorAll('[data-cell]')[position]
+
         cell.classList.add(currentClass)
     }
 
@@ -201,25 +300,54 @@ function Caro(props) {
         })
     }
 
-    // Hàm này dùng để gửi tin nhắn
-    const handlerMessage = () => {
-        console.log(message)
+    // Hàm này dùng để gửi socket keyboard
+    const handlerKeyboard = (e) => {
 
-        let newMessages = messages
+        const mess = e.target.value
+
+        setMessage(mess)
 
         const data = {
-            id: Math.random().toString(),
-            message: message,
-            category: 'send'
+            message: mess,
+            room
         }
 
-        newMessages.push(data)
+        socket.emit('keyboard', data)
 
-        setMessages(newMessages)
+    }
+
+    const handlerEnter = (e) => {
+
+        if (e.key === 'Enter'){
+            handlerMessage()
+        }
+
+    }
+
+    // Hàm này dùng để gửi tin nhắn
+    const handlerMessage = () => {
+
+        const data = {
+            _id: sessionStorage.getItem('userId'),
+            message,
+            room
+        }
+
+        socket.emit('send', data)
+
+        setMessages([...messages, data])
 
         setMessage('')
 
         scrollToBottom()
+
+        const reset = {
+            message: '',
+            room
+        }
+
+        socket.emit('keyboard', reset)
+
     }
 
     // Hàm này hiển thị tin nhắn ở cuối
@@ -234,7 +362,6 @@ function Caro(props) {
         setUser(res)
         setImage(res.image)
 
-
     }
 
     return (
@@ -245,19 +372,31 @@ function Caro(props) {
                 animate="visible"
                 exit="exit"
             >
+                <div className="caro-close">
+                    <i className="fa fa-close"></i>
+                </div>
                 <div className="group-caro-board">
                     <div className="board" id="board">
                         {
-                            [...Array(144)].map((x, i) => (
+                            allowPlay ? [...Array(144)].map((x, i) => (
                                 <div key={i} className="cell" data-cell onClick={(e) => handlerClick(e, i)}></div>
-                            ))
+                            )) : (
+                                <div className="text-center p-5">
+                                    <div className="spinner">
+                                        <div className="bounce1"></div>
+                                        <div className="bounce2"></div>
+                                        <div className="bounce3"></div>
+                                    </div>
+                                    <h4>Đang chờ đối thủ</h4>
+                                </div>
+                            )
                         }
                     </div>
                     {
                         messWin && (
                             <div className="winning-message show" id="winningMessage">
                                 <div className="msg-info-win">{messWin}</div>
-                                <button onClick={handleRestart}>Restart</button>
+                                <button onClick={handleRestart}>Chơi Lại</button>
                             </div>
                         )
                     }
@@ -316,7 +455,7 @@ function Caro(props) {
                                                     another && <h3 className="name-user-caro">{another.fullname}</h3>
                                                 }
                                             </div>
-                                            { !flag ? (<h5 className="allow-play">Đang chờ đối thủ đánh cờ!</h5>) :
+                                            {!flag ? (<h5 className="allow-play">Đang chờ đối thủ đánh cờ!</h5>) :
                                                 <h5 className="allow-play">Đối thủ đang chờ bạn đấy!</h5>}
                                         </div>
                                     )
@@ -326,20 +465,34 @@ function Caro(props) {
                             <div className="user-chat">
                                 <div className="box-chat">
                                     {
-                                        messages && messages.map((value) => (
-                                            <div className="message" key={value.id}>
-                                                <div className={value.category === 'send' ? 'text-end'
+                                        messages && messages.map((value, index) => (
+                                            <div className="message" key={index}>
+                                                <div className={value._id === sessionStorage.getItem('userId') ? 'text-end'
                                                     : 'text-start'}>
-                                                    <span className={value.category === 'send' ? 'padding-message-send'
-                                                        : 'padding-message-receive'}>{value.message}</span>
+                                                    <span className={value._id === sessionStorage.getItem('userId') ?
+                                                        'padding-message-send' : 'padding-message-receive'}>{value.message}</span>
                                                 </div>
                                             </div>
                                         ))
                                     }
                                     <div ref={messagesEndRef} />
+                                    {
+                                        load && (
+                                            <div className="message">
+                                                <div className="box-keyboard">
+                                                    <div className="spinner-message">
+                                                        <div className="bounce1-message"></div>
+                                                        <div className="bounce2-message"></div>
+                                                        <div className="bounce3-message"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+
                                 </div>
                                 <div className="box-send-message">
-                                    <input onChange={(e) => setMessage(e.target.value)} className="input-send-message"
+                                    <input onChange={handlerKeyboard} onKeyPress={handlerEnter} className="input-send-message"
                                         type="text" placeholder="Nhập tin nhắn" value={message} />
                                     <div onClick={handlerMessage} className="btn-send-message"><i className="fa fa-paper-plane"></i></div>
                                 </div>

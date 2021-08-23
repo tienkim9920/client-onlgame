@@ -4,6 +4,7 @@ import { useHistory } from 'react-router';
 import { getValueCaro, getRoomCaro } from '../../features/caro/roomCaro';
 import socket from '../../socket/socket'
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 const moveLeft = {
     hidden: {
@@ -37,6 +38,13 @@ function Room(props) {
 
     const [room, setRoom] = useState('')
 
+    useEffect(() => {
+
+        // Gọi hàm
+        leaveRoom()
+
+    }, [])
+
     const createRoom = () => {
         console.log("Tao Phong")
 
@@ -49,6 +57,8 @@ function Room(props) {
 
         // set room id
         dispatch(getRoomCaro(roomID))
+
+        sessionStorage.setItem('room', roomID)
 
         history.push('/caro/board')
     }
@@ -76,7 +86,24 @@ function Room(props) {
         // set room id
         dispatch(getRoomCaro(room))
 
+        sessionStorage.setItem('room', room)
+
         history.push('/caro/board')
+    }
+
+    // Hàm này dùng để leave room chat
+    function leaveRoom() {
+
+        if (sessionStorage.getItem('room')){
+
+            const leaveRoom = sessionStorage.getItem('room')
+
+            socket.emit('leaveRoom', leaveRoom)
+
+            sessionStorage.removeItem('room')
+
+        }
+
     }
 
     return (

@@ -5,6 +5,7 @@ import queryString from 'query-string';
 // Please have a look at here `https://github.com/axios/axios#requestconfig` for the full list of configs
 const axiosClient = axios.create({
     baseURL: 'https://server-onlgame.herokuapp.com',
+    // baseURL: 'http://localhost:4000',
     headers: {
         'content-type': 'application/json',
         'Access-Control-Allow-Origin': '*',

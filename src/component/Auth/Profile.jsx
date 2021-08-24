@@ -6,6 +6,8 @@ import { useDispatch } from 'react-redux';
 import { getFullname, getUserId } from '../../features/header/userId';
 import avatar from '../../global/avt.jpg'
 import { useHistory } from 'react-router-dom';
+import socket from '../../socket/socket';
+import { getRoomCaro, getValueCaro } from '../../features/caro/roomCaro';
 
 const containerVariants = {
     hidden: {
@@ -94,7 +96,7 @@ function Profile(props) {
 
             const res = await UserAPI.patchImage(formData)
 
-            if (res.msg === 'Success'){
+            if (res.msg === 'Success') {
                 setImage(res.image)
                 setSuccess('Bạn đã cập nhật thành công!')
             }
@@ -115,6 +117,33 @@ function Profile(props) {
         dispatch(getUserId(''))
 
         history.push('/')
+    }
+
+    useEffect(() => {
+
+        // Gọi hàm
+        leaveRoom()
+
+    }, [])
+
+    // Hàm này dùng để leave room chat
+    function leaveRoom() {
+
+        if (sessionStorage.getItem('room')) {
+
+            const leaveRoom = sessionStorage.getItem('room')
+
+            socket.emit('leaveRoom', leaveRoom)
+
+            sessionStorage.removeItem('room')
+
+            // set room id
+            dispatch(getRoomCaro(''))
+
+            dispatch(getValueCaro(''))
+
+        }
+
     }
 
     return (

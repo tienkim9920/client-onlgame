@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './Home.css'
 import caro from '../../global/logo-caro.png'
 import snake from '../../global/logo-snake.png'
 import tetris from '../../global/logo-tetris.png'
 import { useHistory } from 'react-router-dom';
 import { motion } from 'framer-motion'
+import socket from '../../socket/socket';
+import { useDispatch } from 'react-redux';
+import { getRoomCaro, getValueCaro } from '../../features/caro/roomCaro';
 
 const containerVariants = {
     hidden: {
@@ -20,6 +23,8 @@ function Home(props) {
 
     const history = useHistory()
 
+    const dispatch = useDispatch()
+
     const playCaro = () => {
 
         if (sessionStorage.getItem('userId')){
@@ -28,6 +33,33 @@ function Home(props) {
         }
 
         history.push('/signin')
+
+    }
+
+    useEffect(() => {
+
+        // Gọi hàm
+        leaveRoom()
+
+    }, [])
+
+    // Hàm này dùng để leave room chat
+    function leaveRoom() {
+
+        if (sessionStorage.getItem('room')) {
+
+            const leaveRoom = sessionStorage.getItem('room')
+
+            socket.emit('leaveRoom', leaveRoom)
+
+            sessionStorage.removeItem('room')
+
+            // set room id
+            dispatch(getRoomCaro(''))
+
+            dispatch(getValueCaro(''))
+
+        }
 
     }
 

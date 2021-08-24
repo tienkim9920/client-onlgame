@@ -38,10 +38,47 @@ function Room(props) {
 
     const [room, setRoom] = useState('')
 
+    const [error, setError] = useState(null)
+
     useEffect(() => {
 
         // Gọi hàm
         leaveRoom()
+
+    }, [])
+
+    useEffect(() => {
+
+        socket.on('findRoom', (body) => {
+
+            if (parseInt(body.player) < 2 && body.getRoom){
+                const data = {
+                    _id: sessionStorage.getItem('userId'),
+                    room: body.room
+                }
+
+                socket.emit('joinRoom', data)
+        
+                // Set trạng tháy người chơi X or O
+                dispatch(getValueCaro('o'))
+        
+                // set room id
+                dispatch(getRoomCaro(data.room))
+        
+                sessionStorage.setItem('room', data.room)
+
+                history.push('/caro/board')
+
+                return
+            }else {
+                setError("Bạn không thể vào phòng này!")
+
+                setTimeout(() => {
+                    setError(null)
+                }, 4000)
+            }
+
+        })
 
     }, [])
 
@@ -71,25 +108,10 @@ function Room(props) {
 
         console.log("Tim Phong")
 
-        socket.emit('room', room)
+        socket.emit('findRoom', room)
 
-        const data = {
-            _id: sessionStorage.getItem('userId'),
-            room
-        }
-
-        socket.emit('joinRoom', data)
-
-        // Set trạng tháy người chơi X or O
-        dispatch(getValueCaro('o'))
-
-        // set room id
-        dispatch(getRoomCaro(room))
-
-        sessionStorage.setItem('room', room)
-
-        history.push('/caro/board')
     }
+
 
     // Hàm này dùng để leave room chat
     function leaveRoom() {
@@ -101,6 +123,11 @@ function Room(props) {
             socket.emit('leaveRoom', leaveRoom)
 
             sessionStorage.removeItem('room')
+
+            // set room id
+            dispatch(getRoomCaro(''))
+
+            dispatch(getValueCaro(''))
 
         }
 
@@ -120,6 +147,18 @@ function Room(props) {
                         <input placeholder="Tìm Phòng" type="text" onChange={(e) => setRoom(e.target.value)} className="input-find-room" />
                         <div onClick={findRoom} className="btn-find-room"><i className="fa fa-search"></i></div>
                     </div>
+                    {
+                    error && (
+                        <motion.div className="mt-3 alert alert-danger show"
+                            variants={moveLeft}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                        >
+                           <span>{error}</span>
+                        </motion.div>
+                        )
+                    }
                 </motion.div>
                 <motion.div className="width-join-room-phone"
                     variants={zoomIn}
@@ -132,7 +171,20 @@ function Room(props) {
                         <input placeholder="Tìm Phòng" type="text" onChange={(e) => setRoom(e.target.value)} className="input-find-room" />
                         <div onClick={findRoom} className="btn-find-room"><i className="fa fa-search"></i></div>
                     </div>
+                    {
+                    error && (
+                        <motion.div className="mt-3 alert alert-danger show"
+                            variants={zoomIn}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                        >
+                            <span>{error}</span>
+                        </motion.div>
+                        )
+                    }
                 </motion.div>
+                
             </div>
         </div>
     );

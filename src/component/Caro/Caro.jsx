@@ -6,7 +6,7 @@ import WINNING_COMBINATIONS from './Algorithm';
 import { motion } from 'framer-motion';
 import UserAPI from '../../api/UserAPI';
 import avatar from '../../global/avt.jpg'
-import { useHistory } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 
 const X_CLASS = 'x'
 const O_CLASS = 'o'
@@ -73,7 +73,8 @@ function Caro(props) {
     useEffect(() => {
 
         if (!room) {
-            window.location.href = '/caro';
+            history.push('/caro')
+            return
         }
 
         // Hàm này kiểm tra X or O để hiển thị hover cho người chơi
@@ -88,7 +89,6 @@ function Caro(props) {
 
         // Hàm này dùng để nhận socket đánh cờ từ người chơi khác
         socket.on('position', (data) => {
-            console.log(data)
 
             setClonePosition(data.position)
 
@@ -122,7 +122,7 @@ function Caro(props) {
 
             const returnData = {
                 _id: sessionStorage.getItem('userId'),
-                room
+                room: sessionStorage.getItem('room')
             }
 
             // Gửi ngược socket trả lại cho đối phương
@@ -154,7 +154,9 @@ function Caro(props) {
                 setpointX(0)
                 setpointO(0)
                 setFlag(false)
-            } else {
+            }
+
+            if (sessionStorage.getItem('room') && status === 'o') {
                 history.push('/caro')
             }
 
@@ -185,14 +187,14 @@ function Caro(props) {
     // Vì react khi thay đổi state thì mặc định state nó vẫn không thay đổi về bản chất
     // nên ta phải dùng thêm useEffect để cập nhật lại state
     useEffect(() => {
-        if (clone){
+        if (clone) {
             setMessages(prev => [...prev, clone])
         }
     }, [clone])
 
 
     useEffect(() => {
-        if (clonePosition){
+        if (clonePosition) {
             setPosition(prev => [...prev, clonePosition])
         }
     }, [clonePosition])
@@ -207,7 +209,7 @@ function Caro(props) {
         })
 
         // Nếu được đánh vào rồi thì return
-        if (!check){
+        if (!check) {
             return
         }
 
@@ -270,6 +272,8 @@ function Caro(props) {
             cell.classList.remove(X_CLASS)
             cell.classList.remove(O_CLASS)
         })
+
+        setPosition([])
     }
 
     // Hàm này hiển thị hover
@@ -318,7 +322,7 @@ function Caro(props) {
 
     const handlerEnter = (e) => {
 
-        if (e.key === 'Enter'){
+        if (e.key === 'Enter') {
             handlerMessage()
         }
 
@@ -352,7 +356,7 @@ function Caro(props) {
 
     // Hàm này hiển thị tin nhắn ở cuối
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", inline: "nearest" })
     }
 
     async function getDetail() {
@@ -372,10 +376,10 @@ function Caro(props) {
                 animate="visible"
                 exit="exit"
             >
-                <div className="caro-close">
-                    <i className="fa fa-close"></i>
+                <div className="caro-close item1">
+                    <Link to="/caro" className="fa fa-close"></Link>
                 </div>
-                <div className="group-caro-board">
+                <div className="group-caro-board item3">
                     <div className="board" id="board">
                         {
                             allowPlay ? [...Array(144)].map((x, i) => (
@@ -402,7 +406,7 @@ function Caro(props) {
                     }
 
                 </div>
-                <div className="group-caro-user">
+                <div className="group-caro-user item2">
                     <div className="box-caro-user">
                         <div className="header-caro-info">
                             <h5>Số phòng: {room}</h5>
@@ -466,9 +470,9 @@ function Caro(props) {
                                 <div className="box-chat">
                                     {
                                         messages && messages.map((value, index) => (
-                                            <div className="message" key={index}>
-                                                <div className={value._id === sessionStorage.getItem('userId') ? 'text-end'
-                                                    : 'text-start'}>
+                                            <div className={value._id === sessionStorage.getItem('userId') ? 'message-send'
+                                                : 'message-receive'} key={index}>
+                                                <div className="message">
                                                     <span className={value._id === sessionStorage.getItem('userId') ?
                                                         'padding-message-send' : 'padding-message-receive'}>{value.message}</span>
                                                 </div>
@@ -478,13 +482,11 @@ function Caro(props) {
                                     <div ref={messagesEndRef} />
                                     {
                                         load && (
-                                            <div className="message">
-                                                <div className="box-keyboard">
-                                                    <div className="spinner-message">
-                                                        <div className="bounce1-message"></div>
-                                                        <div className="bounce2-message"></div>
-                                                        <div className="bounce3-message"></div>
-                                                    </div>
+                                            <div className="box-keyboard">
+                                                <div className="spinner-message">
+                                                    <div className="bounce1-message"></div>
+                                                    <div className="bounce2-message"></div>
+                                                    <div className="bounce3-message"></div>
                                                 </div>
                                             </div>
                                         )

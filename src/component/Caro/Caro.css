@@ -80,10 +80,6 @@
   position: relative;
 }
 
-.group-caro-user{
- 
-}
-
 .group-caro-board{
   border-right: 1px solid #e2e2e2;
 }
@@ -172,7 +168,7 @@ hr{
   height: 18rem;
   font-size: .9rem;
   overflow-y: scroll;
-  padding: 1rem 0;
+  padding: 0 0 1rem 0;
   padding-right: .5rem;
 }
 
@@ -191,10 +187,6 @@ hr{
 ::-webkit-scrollbar-thumb {
   background: #4e525e; 
   border-radius: 10px;
-}
-
-.message{
-  margin-top: 1rem;
 }
 
 .padding-message-send{
@@ -466,8 +458,26 @@ hr{
   left: 97%;
 }
 
-.caro-close i{
+.caro-close a{
   font-size: 30px;
+  color: #3A3D47;
+  text-decoration: none;
+}
+
+.message{
+  display: inline-flex;
+}
+
+.message-send{
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.message-receive{
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 1rem;
 }
 
 @media only screen and (max-width: 600px){
@@ -489,10 +499,18 @@ hr{
     left: 73.5%;
   }
 
+  .item1 { grid-area: close; }
+  .item2 { grid-area: user; }
+  .item3 { grid-area: board; }
+
   .wrapper-caro{
     grid-template-columns: 1fr;
     padding: 3rem 1rem 1rem 1rem !important;
     margin: 0 1rem;
+    grid-template-areas:
+    'close'
+    'user'
+    'board';
   }
 
   .cell {
@@ -500,8 +518,14 @@ hr{
     height: 29px !important;
   }
 
+  .group-caro-user{
+    padding-bottom: 1rem !important;
+  }
+
   .group-caro-board{
-    border: none !important;
+    border-top: 1px solid #e2e2e2 !important;
+    padding-top: 1rem !important;
+    border-right: none !important;
   }
 
   .header-caro-info{

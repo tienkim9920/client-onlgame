@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import UserAPI from '../../api/UserAPI';
 import avatar from '../../global/avt.jpg'
 import { Link, useHistory } from 'react-router-dom'
+import { blockLeftToRight, blockRightToLeft, blockX, blockY, checkLeftToRight, checkRightToLeft, checkX, checkY } from './CheckBlock';
 
 const X_CLASS = 'x'
 const O_CLASS = 'o'
@@ -69,6 +70,8 @@ function Caro(props) {
 
     const [clonePosition, setClonePosition] = useState(null)
 
+    const [clonePoint, setClonePoint] = useState(null)
+
     // Đầu tiên khởi chạy hàm này
     useEffect(() => {
 
@@ -103,7 +106,7 @@ function Caro(props) {
             if (checkWin(currentClass, cellElements, 12)) {
                 setMessWin(`${data.status.toUpperCase()} đã chiến thắng`)
 
-                checkPoint(data.status)
+                setClonePoint(currentClass)
 
                 setAllowPlay(false)
             }
@@ -199,6 +202,18 @@ function Caro(props) {
         }
     }, [clonePosition])
 
+    useEffect(() => {
+        if (clonePoint !== null){
+            if (clonePoint === 'x') {
+                setpointX(pointX + 1)
+            } else {
+                setpointO(pointO + 1)
+            }
+        }
+
+        setClonePoint(null)
+    }, [clonePoint])
+
 
     // Hàm này sẽ gửi socket khi đối thủ đánh cờ
     const handlerClick = (e, i) => {
@@ -227,7 +242,7 @@ function Caro(props) {
         if (checkWin(currentClass, cellElements, 12)) {
             setMessWin(`${status.toUpperCase()} đã chiến thắng`)
 
-            checkPoint(status)
+            setClonePoint(currentClass)
 
             setAllowPlay(false)
 
@@ -243,15 +258,6 @@ function Caro(props) {
         socket.emit('position', data)
         setFlag(false)
 
-    }
-
-    // Hàm này dùng để kiểm tra điểm chiến thắng
-    function checkPoint(status) {
-        if (status === 'x') {
-            setpointX(pointX + 1)
-        } else {
-            setpointO(pointO + 1)
-        }
     }
 
     // Hàm này dùng để chơi lại
@@ -297,12 +303,6 @@ function Caro(props) {
 
     // Hàm kiểm tra có thỏa mãn hay không và nó sẽ trả lại true hoặc false
     function checkWin(currentClass, cellElements, maTrix) {
-        // return WINNING_COMBINATIONS.some(combination => {
-        //     return combination.every(index => {
-        //         return cellElements[index].classList.contains(currentClass)
-        //     })
-        // })
-
         let checkWinner = false
 
         WINNING_COMBINATIONS.forEach(y => {
@@ -315,8 +315,8 @@ function Caro(props) {
             // Nếu dòng đó thỏa mản thì mình xét tiếp
             if (flag){
                 // Kiểm tra xem nó thuộc trường hợp nào
-                const caseY = checkY(y, maTrix)
                 const caseX = checkX(y)
+                const caseY = checkY(y, maTrix)
                 const caseLeftToRight = checkLeftToRight(y, maTrix)
                 const caseRightToLeft = checkRightToLeft(y, maTrix)
 
@@ -329,85 +329,29 @@ function Caro(props) {
                     }
                 }
 
+                if (caseY){
+                    if (blockY(y, maTrix, cellElements)){
+                        checkWinner = true
+                    }
+                }
+
+                if (caseLeftToRight){
+                    if (blockLeftToRight(y, maTrix, cellElements)){
+                        checkWinner = true
+                    }
+                }
+
+                if (caseRightToLeft){
+                    if (blockRightToLeft(y, maTrix, cellElements)){
+                        checkWinner = true
+                    }
+                }
+
                 
             }
         })
 
         return checkWinner
-    }
-
-    function checkX(array){
-        for (let i = 1; i < array.length; i++){
-            if (array[i] - array[i - 1] !== 1){
-                return false
-            }
-        }
-        return true
-    }
-
-    function checkY(array, maTrix){
-        for (let i = 1; i < array.length; i++){
-            if (array[i] - array[i - 1] !== maTrix){
-                return false
-            }
-        }
-        return true
-    }
-
-    function checkLeftToRight(array, maTrix){
-        for (let i = 1; i < array.length; i++){
-            if (array[i] - array[i - 1] !== maTrix + 1){
-                return false
-            }
-        }
-        return true
-    }
-
-    function checkRightToLeft(array, maTrix){
-        for (let i = 1; i < array.length; i++){
-            if (array[i] - array[i - 1] !== maTrix - 1){
-                return false
-            }
-        }
-        return true
-    }
-
-    function blockX(array, cellElements){
-
-        const start = array[0]
-        const end = array[array.length - 1]
-
-        const store = [start - 1, end + 1]
-
-        return checkingBlock(store, cellElements)
-        
-    }
-
-    function blockY(array, maTrix, cellElements){
-
-        const start = array[0]
-        const end = array[array.length - 1]
-
-        const store = [start - maTrix, end + maTrix]
-
-        return checkingBlock(store, cellElements)
-
-    }
-
-    function checkingBlock(store, cellElements){
-        let flag = 0
-
-        store.forEach(value => {
-            if (cellElements[value].classList.contains('x') || cellElements[value].classList.contains('o')){
-                flag++
-            }
-        })
-
-        if (flag < 2){
-            return true
-        }else{
-            return false
-        }
     }
 
     // Hàm này dùng để gửi socket keyboard

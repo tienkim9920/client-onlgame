@@ -346,11 +346,9 @@ function Caro(props) {
                         checkWinner = true
                     }
                 }
-
-                
             }
         })
-
+        
         return checkWinner
     }
 

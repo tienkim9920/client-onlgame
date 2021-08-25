@@ -203,6 +203,14 @@ hr{
   border-radius: 8px 8px 8px 1px;
 }
 
+.cell.x.focus{
+  background-color: #e6e6e6;
+}
+
+.cell.o.focus{
+  background-color: #e6e6e6;
+}
+
   
   .cell.x,
   .cell.o {

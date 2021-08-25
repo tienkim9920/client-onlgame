@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
     value: '',
     room: '',
+    focus: null
 }
 
 export const roomCaro = createSlice({
@@ -14,10 +15,13 @@ export const roomCaro = createSlice({
         },
         getRoomCaro: (state, action) => {
             state.room = action.payload
+        },
+        getFocusCaro: (state, action) => {
+            state.focus = action.payload
         }
     }
 })
 
-export const { getValueCaro, getRoomCaro } = roomCaro.actions
+export const { getValueCaro, getRoomCaro, getFocusCaro } = roomCaro.actions
 
 export default roomCaro.reducer

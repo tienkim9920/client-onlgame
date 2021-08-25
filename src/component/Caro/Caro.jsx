@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import socket from '../../socket/socket';
 import './Caro.css'
 import WINNING_COMBINATIONS from './Algorithm';
@@ -8,6 +8,7 @@ import UserAPI from '../../api/UserAPI';
 import avatar from '../../global/avt.jpg'
 import { Link, useHistory } from 'react-router-dom'
 import { blockLeftToRight, blockRightToLeft, blockX, blockY, checkLeftToRight, checkRightToLeft, checkX, checkY } from './CheckBlock';
+import { getFocusCaro } from '../../features/caro/roomCaro';
 
 const X_CLASS = 'x'
 const O_CLASS = 'o'
@@ -32,11 +33,15 @@ function Caro(props) {
 
     const history = useHistory()
 
+    const dispatch = useDispatch()
+
     const [flag, setFlag] = useState(false)
 
     const status = useSelector((state) => state.room.value)
 
     const room = useSelector((state) => state.room.room)
+
+    const focus = useSelector((state) => state.room.focus)
 
     const [messWin, setMessWin] = useState(null)
 
@@ -100,6 +105,11 @@ function Caro(props) {
 
             // Đánh dấu ô cờ mà người chơi khác đã đi
             placeMark(data.position, currentClass)
+
+            // Focus nước ngta vừa đi
+            placeFocus(data.position)
+            dispatch(getFocusCaro(data.position))
+            
 
             // Hàm này dùng để kiểm tra
             const cellElements = document.querySelectorAll('[data-cell]')
@@ -239,6 +249,12 @@ function Caro(props) {
         placeMark(i, currentClass)
 
         const cellElements = document.querySelectorAll('[data-cell]')
+
+        // remove focus
+        if (focus){
+            cellElements[focus].classList.remove('focus')
+        }
+
         if (checkWin(currentClass, cellElements, 12)) {
             setMessWin(`${status.toUpperCase()} đã chiến thắng`)
 
@@ -299,6 +315,14 @@ function Caro(props) {
         const cell = document.querySelectorAll('[data-cell]')[position]
 
         cell.classList.add(currentClass)
+
+    }
+
+    function placeFocus(position){
+        // Lấy toàn bộ các ô cờ
+        const cell = document.querySelectorAll('[data-cell]')[position]
+
+        cell.classList.add('focus')
     }
 
     // Hàm kiểm tra có thỏa mãn hay không và nó sẽ trả lại true hoặc false

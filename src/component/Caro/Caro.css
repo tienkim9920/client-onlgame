@@ -480,6 +480,10 @@ hr{
   margin-top: 1rem;
 }
 
+.box-keyboard{
+  margin-top: 1rem;
+}
+
 @media only screen and (max-width: 600px){
   .cell {
     width: 35px;

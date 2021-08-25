@@ -100,7 +100,7 @@ function Caro(props) {
 
             // Hàm này dùng để kiểm tra
             const cellElements = document.querySelectorAll('[data-cell]')
-            if (checkWin(currentClass, cellElements)) {
+            if (checkWin(currentClass, cellElements, 12)) {
                 setMessWin(`${data.status.toUpperCase()} đã chiến thắng`)
 
                 checkPoint(data.status)
@@ -224,7 +224,7 @@ function Caro(props) {
         placeMark(i, currentClass)
 
         const cellElements = document.querySelectorAll('[data-cell]')
-        if (checkWin(currentClass, cellElements)) {
+        if (checkWin(currentClass, cellElements, 12)) {
             setMessWin(`${status.toUpperCase()} đã chiến thắng`)
 
             checkPoint(status)
@@ -296,12 +296,118 @@ function Caro(props) {
     }
 
     // Hàm kiểm tra có thỏa mãn hay không và nó sẽ trả lại true hoặc false
-    function checkWin(currentClass, cellElements) {
-        return WINNING_COMBINATIONS.some(combination => {
-            return combination.every(index => {
-                return cellElements[index].classList.contains(currentClass)
+    function checkWin(currentClass, cellElements, maTrix) {
+        // return WINNING_COMBINATIONS.some(combination => {
+        //     return combination.every(index => {
+        //         return cellElements[index].classList.contains(currentClass)
+        //     })
+        // })
+
+        let checkWinner = false
+
+        WINNING_COMBINATIONS.forEach(y => {
+
+            // Kiểm tra điều điện xem thử dòng nào thỏa mản
+            const flag = y.every(x => {
+                return cellElements[x].classList.contains(currentClass)
             })
+
+            // Nếu dòng đó thỏa mản thì mình xét tiếp
+            if (flag){
+                // Kiểm tra xem nó thuộc trường hợp nào
+                const caseY = checkY(y, maTrix)
+                const caseX = checkX(y)
+                const caseLeftToRight = checkLeftToRight(y, maTrix)
+                const caseRightToLeft = checkRightToLeft(y, maTrix)
+
+                // Đã biêt nó thuộc trường hợp nào rồi
+                // Thì tiếp theo mình sẽ check 2 đầu đó có tồn tại quân cờ không
+
+                if (caseX){
+                    if (blockX(y, cellElements)){
+                        checkWinner = true
+                    }
+                }
+
+                
+            }
         })
+
+        return checkWinner
+    }
+
+    function checkX(array){
+        for (let i = 1; i < array.length; i++){
+            if (array[i] - array[i - 1] !== 1){
+                return false
+            }
+        }
+        return true
+    }
+
+    function checkY(array, maTrix){
+        for (let i = 1; i < array.length; i++){
+            if (array[i] - array[i - 1] !== maTrix){
+                return false
+            }
+        }
+        return true
+    }
+
+    function checkLeftToRight(array, maTrix){
+        for (let i = 1; i < array.length; i++){
+            if (array[i] - array[i - 1] !== maTrix + 1){
+                return false
+            }
+        }
+        return true
+    }
+
+    function checkRightToLeft(array, maTrix){
+        for (let i = 1; i < array.length; i++){
+            if (array[i] - array[i - 1] !== maTrix - 1){
+                return false
+            }
+        }
+        return true
+    }
+
+    function blockX(array, cellElements){
+
+        const start = array[0]
+        const end = array[array.length - 1]
+
+        const store = [start - 1, end + 1]
+
+        return checkingBlock(store, cellElements)
+        
+    }
+
+    function blockY(array, maTrix, cellElements){
+
+        const start = array[0]
+        const end = array[array.length - 1]
+
+        const store = [start - maTrix, end + maTrix]
+
+        return checkingBlock(store, cellElements)
+
+    }
+
+    function checkingBlock(store, cellElements){
+        let flag = 0
+
+        store.forEach(value => {
+            if (cellElements[value].classList.contains('x') || cellElements[value].classList.contains('o')){
+                flag++
+            }
+        })
+
+        if (flag < 2){
+            return true
+        }else{
+            return false
+        }
     }
 
     // Hàm này dùng để gửi socket keyboard

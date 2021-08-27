@@ -1,0 +1,36 @@
+
+.teris {
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(12, auto)
+}
+
+.colum {
+    width: 37px;
+    height: 37px;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+}
+
+.colum.teris-red{
+    background-color: red;
+}
+.colum.teris-yellow{
+    background-color: yellow;
+}
+.colum.teris-green{
+    background-color: green;
+}
+.colum.teris-blue{
+    background-color: blue;
+}
+.colum.teris-blueviolet{
+    background-color: blueviolet;
+}
+.colum.teris-darkgoldenrod{
+    background-color: darkgoldenrod;
+}

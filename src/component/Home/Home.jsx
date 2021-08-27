@@ -36,6 +36,17 @@ function Home(props) {
 
     }
 
+    const playTeris = () => {
+
+        if (sessionStorage.getItem('userId')){
+            history.push('/teris')
+            return
+        }
+
+        history.push('/signin')
+
+    }
+
     useEffect(() => {
 
         // Gọi hàm
@@ -96,7 +107,7 @@ function Home(props) {
                             <h5 className="card-title">XẾP HÌNH</h5>
                             <p className="card-text">Bạn muốn tìm cảm giác mới trong việc xếp hình thì bạn đã 
                             tìm đúng nơi rồi đó, ở đây chúng tôi sẽ cùng bạn xếp những khối hình thật đẹp.</p>
-                            <a href="#" className="btn btn-primary">Bắt đầu thôi</a>
+                            <div onClick={playTeris} className="btn btn-primary">Bắt đầu thôi</div>
                         </div>
                     </div>
                 </div>

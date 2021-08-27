@@ -9,6 +9,7 @@ import logo from "./global/logo.png";
 import SignIn from "./component/Auth/SignIn";
 import SignUp from "./component/Auth/SignUp";
 import Profile from "./component/Auth/Profile";
+import Teris from "./component/Teris/Teris";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/signin" component={SignIn} />
             <Route path="/signup" component={SignUp} />
             <Route path="/profile" component={Profile} />
+            <Route path="/teris" component={Teris} />
           </Switch>
           <Footer />
       </BrowserRouter>

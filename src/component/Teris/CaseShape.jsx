@@ -172,3 +172,64 @@ export const checkTFour = (shape, colum) => {
 
     return false
 }
+
+// Hình L thứ nhất 5 17 18 19
+// 1
+// 2 3 4
+export const checkLOne = (shape, colum) => {
+    const one = shape[1] - shape[0]
+    let count = 0
+
+    for (let i = 1; i < shape.length; i++){
+        if (shape[i + 1] - shape[i] === 1){
+            count++
+        }
+    }
+
+    if (count === 2 && one === colum){
+        return true
+    }
+
+    return false
+}
+
+// Hình L thứ hai 5 6 17 29
+// 1 4
+// 2
+// 3 
+export const checkLTwo = (shape, colum) => {
+    const one = shape[1] - shape[0]
+    const two = shape[3] - shape[2]
+
+    if (one === 1 && two === colum && shape[2] - shape[0] === colum){
+        return true
+    }
+
+    return false
+}
+
+// Hình L thứ ba 5 6 18 30
+// 4 1
+//   2
+//   3 
+export const checkLThree = (shape, colum) => {
+    const one = shape[1] - shape[0]
+    const two = shape[3] - shape[2]
+
+    if (one === 1 && two === colum && shape[2] - shape[0] === colum + 1){
+        return true
+    }
+
+    return false
+}
+
+// Hình L thứ tu 5 15 16 17
+//     4
+// 1 2 3
+export const checkLFour = (shape, colum) => {
+    if (shape[1] - shape[0] === 10 && shape[2] - shape[0] === 11 && shape[3] - shape[0] === colum){
+        return true
+    }
+
+    return false
+}

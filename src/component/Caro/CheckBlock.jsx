@@ -1,3 +1,5 @@
+
+// Kiểm tra xem nó có phải trường hợp nằm ngang hay không
 export const checkX = (array) => {
     for (let i = 1; i < array.length; i++) {
         if (array[i] - array[i - 1] !== 1) {
@@ -7,6 +9,7 @@ export const checkX = (array) => {
     return true
 }
 
+// Kiểm tra xem nó có phải trường hợp nằm đứng hay không
 export const checkY = (array, maTrix) => {
     for (let i = 1; i < array.length; i++){
         if (array[i] - array[i - 1] !== maTrix){
@@ -16,6 +19,7 @@ export const checkY = (array, maTrix) => {
     return true
 }
 
+// Kiểm tra xem nó có phải trường hợp từ trái qua phải hay không
 export const checkLeftToRight = (array, maTrix) => {
     for (let i = 1; i < array.length; i++){
         if (array[i] - array[i - 1] !== maTrix + 1){
@@ -25,6 +29,7 @@ export const checkLeftToRight = (array, maTrix) => {
     return true
 }
 
+// Kiểm tra xem nó có phải trường hợp từ phải qua trái hay không
 export const checkRightToLeft = (array, maTrix) => {
     for (let i = 1; i < array.length; i++){
         if (array[i] - array[i - 1] !== maTrix - 1){
@@ -34,6 +39,8 @@ export const checkRightToLeft = (array, maTrix) => {
     return true
 }
 
+
+// kiểm tra tiếp 2 đầu có tồn tại x hay o
 export const blockX = (array, cellElements) => {
 
     const start = array[0]
@@ -74,6 +81,7 @@ export const blockRightToLeft = (array, maTrix, cellElements) => {
     return checkingBlock(store, cellElements)
 }
 
+// Hàm này dùng để kiểm tra 2 đầu có tòn tại x hoặc o không
 function checkingBlock(store, cellElements){
     let flag = 0
 

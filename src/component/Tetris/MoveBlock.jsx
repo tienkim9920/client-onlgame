@@ -20,7 +20,6 @@ export const moveRight = (row, colum) => {
 }
 
 export const rowLength = (row, colum) => {
-
     let array = []
 
     for (let i = 0; i < colum; i++){
@@ -28,5 +27,14 @@ export const rowLength = (row, colum) => {
     }
 
     return array
+}
 
+export const rowStart = (colum) => {
+    let array = []
+
+    for (let i = 0; i < colum; i++){
+        array.push(i)
+    }
+
+    return array
 }

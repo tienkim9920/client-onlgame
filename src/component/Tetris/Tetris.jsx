@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion'
-import './Teris.css'
+import './Tetris.css'
 import { useEffect } from 'react';
 import SHAPE from './Shape'
 import { useState } from 'react';
-import { moveLeft, moveRight, rowLength } from './MoveBlock';
+import { moveLeft, moveRight, rowLength, rowStart } from './MoveBlock';
 import { checkHalfFour, checkHalfOne, checkHalfThree, checkHalfTwo, checkHorizontal, checkLFour, checkLOne, checkLThree, checkLTwo, checkSquare, checkTFour, checkTOne, checkTThree, checkTTwo, checkVerical } from './CaseShape';
 
 const containerVariants = {
@@ -43,23 +43,26 @@ function Teris(props) {
     }, [])
 
     useEffect(() => {
-        // get colum
-        const cell = document.querySelectorAll('[data-colum]')
 
-        shape.forEach(value => {
-            cell[value].classList.add(color)
-            cell[value].classList.add('checking')
-        })
+        if (shape){
+            // get colum
+            const cell = document.querySelectorAll('[data-colum]')
 
-        const interval = setInterval(() => {
-            moveDownTeris(12)
-        }, 750)
+            shape.forEach(value => {
+                cell[value].classList.add(color)
+                cell[value].classList.add('checking')
+            })
 
-        return () => clearInterval(interval)
+            const interval = setInterval(() => {
+                moveDownTeris(12)
+            }, 750)
+        
+            return () => clearInterval(interval)
+        }
 
     }, [shape])
 
-    // Hàm này dùng để đánh dấu ô
+    // Hàm này dùng để đánh dấu ô và hạ khối hình xuống sau đó tính điểm
     function placeChecking(shape) {
         const cell = document.querySelectorAll('[data-colum]')
 
@@ -67,40 +70,95 @@ function Teris(props) {
             cell[index].classList.add('checking')
             cell[index].classList.add(color)
         })
-    }
 
-    function getMax(array, max) {
+        const posStart = rowStart(12)
+        const flag = combination(posStart, shape)
 
-        let flagMax = 0
+        if (flag){
+            console.log("Ban da thua")
+            setShape(null)
+            return
+        }
 
-        for (let i = 0; i < array.length; i++) {
-            if (array[i] === max) {
-                continue
+        const row = 16
+        const colum = 12
+        // row * colum
+
+        for (let i = 0; i < row; i++){
+            
+            let flag = 0
+
+            // Kiểm tra xem dòng đó có chứa đầy đủ ô không
+            for (let j = i * colum; j < i * colum + colum; j++){
+                if (cell[j].classList.contains('checking')){
+                    flag++
+                }
             }
-            if (flagMax < array[i]) {
-                flagMax = array[i]
+
+            // Có thì bắt đầu xóa
+            if (flag === colum){
+                console.log(flag)
+                for (let j = i * colum; j < i * colum + colum; j++){
+                    removeCheckingRow(j)
+                }
+
+                // Xong hạ xuống
+                lowerShape(i, 12)
             }
         }
 
-        return flagMax
+        ramdomTeris()
     }
 
+    // Hàm này dùng để xóa dòng hình đó
+    function removeCheckingRow(index){
+        const cell = document.querySelectorAll('[data-colum]')[index]
+
+        for (let i = 0; i < COLOR.length; i++){
+            cell.classList.remove(COLOR[i])
+        }
+        cell.classList.remove('checking')
+    }
+
+    // Hàm này dùng để hạ khối hình
+    function lowerShape(position, colum){
+        const cell = document.querySelectorAll('[data-colum]')
+        
+        for (let i = position; i > 0; i--){
+            for (let j = i * colum; j < i * colum + colum; j++){
+
+                // Kiểm tra xem ô ở phía trên là màu gì sau đó xóa đi và gán cho color
+                for (let k = 0; k < COLOR.length; k++){
+                    if (cell[j - colum].classList.contains(COLOR[k]) && cell[j - colum].classList.contains('checking')){
+                        cell[j - colum].classList.remove('checking')
+                        cell[j - colum].classList.remove(COLOR[k])
+
+                        // tiến hành gán
+                        cell[j].classList.add('checking')
+                        cell[j].classList.add(COLOR[k])
+                    }
+                }
+            }
+        }
+    }
 
     // Hàm này để gọi lại những function move
     useEffect(() => {
 
-        if (move === 65) {
-            moveLeftTeris(16, 12)
-            setMove(null)
-        } else if (move === 87) {
-            routeShape()
-            setMove(null)
-        } else if (move === 68) {
-            moveRightTeris(16, 12)
-            setMove(null)
-        } else if (move === 83) {
-            moveDownTeris(12)
-            setMove(null)
+        if (shape){
+            if (move === 65) {
+                moveLeftTeris(16, 12)
+                setMove(null)
+            } else if (move === 87) {
+                routeShape()
+                setMove(null)
+            } else if (move === 68) {
+                moveRightTeris(16, 12)
+                setMove(null)
+            } else if (move === 83) {
+                moveDownTeris(12)
+                setMove(null)
+            }
         }
 
     }, [move])
@@ -174,6 +232,39 @@ function Teris(props) {
         }
     }
 
+    function checkDown(shape){
+        const arrayRow16 = rowLength(16, 12) // Lấy mảng dòng cuối cùng
+        const flag = combination(arrayRow16, shape) // kiểm tra xem nó có đang ở dòng cuối cùng k
+
+        if (flag) {
+            return true
+        }
+
+        return false
+    }
+
+    function checkRight(shape){
+        const posRight = moveRight(16, 12)
+        let flag = combination(posRight, shape)
+        
+        if (flag) {
+            return true
+        }
+
+        return false
+    }
+
+    function checkLeft(shape){
+        const posLeft = moveLeft(16, 12)
+        let flag = combination(posLeft, shape)
+        
+        if (flag) {
+            return true
+        }
+
+        return false
+    }
+
     // Hàm này dùng để xoay hình
     function routeShape(){
         // Kiểm tra xem nó thuộc hình nào
@@ -193,13 +284,25 @@ function Teris(props) {
         const LThree = checkLThree(shape, 12)
         const LFour = checkLFour(shape, 12)
 
+        // Kiểm tra nếu nó ở hàng cuối cùng thì k cho nó xoay
+        const flagEnd = checkDown(shape)
+        if (flagEnd){
+            return
+        }
+
         if (horizontal) { // trường hợp ngang 4 số liền nhau 5 6 7 8 => 5 17 29 41
 
             const newShape = [shape[0], shape[1] + 11, shape[2] + 22, shape[3] + 33]
 
             // còn mảng này để kiểm tra trước khi xoay những ô đó tồn tại hay chưa
-            const newCombination = [shape[1] + 11, shape[2] + 22, shape[3] + 33] 
-            
+            const newCombination = [shape[1] + 11, shape[2] + 22, shape[3] + 33]
+
+            // Trước khi xoay kiểm tra vị trí ở cuối có hợp lệ hay không
+            const flagDown = checkDown(newCombination)
+            if (flagDown){
+                return
+            }
+
             if (combinationCells(newCombination)){
                 return
             }
@@ -212,7 +315,19 @@ function Teris(props) {
             const newShape = [shape[0], shape[1] - 11, shape[2] - 22, shape[3] - 33]
 
             // còn mảng này để kiểm tra trước khi xoay những ô đó tồn tại hay chưa
-            const newCombination = [shape[1] - 11, shape[2] - 22, shape[3] - 33] 
+            const newCombination = [shape[1] - 11, shape[2] - 22, shape[3] - 33]
+            
+            // Trước khi xoay kiểm tra vị trí ở cuối có hợp lệ hay không
+            const flagDown = checkDown(newCombination)
+            if (flagDown){
+                return
+            }
+
+            // Trước khi xoay kiểm tra vị trí bên phải có hợp lệ hay không
+            const flagRight = checkLeft(newCombination)
+            if (flagRight){
+                return
+            }
             
             if (combinationCells(newCombination)){
                 return
@@ -229,7 +344,13 @@ function Teris(props) {
 
             // còn mảng này để kiểm tra trước khi xoay những ô đó tồn tại hay chưa
             const newCombination = [shape[2] + 2, shape[3] + 2] 
-            
+
+            // Trước khi xoay kiểm tra vị trí bên phải có hợp lệ hay không
+            const flagRight = checkLeft(newCombination)
+            if (flagRight){
+                return
+            }
+        
             if (combinationCells(newCombination)){
                 return
             }
@@ -237,13 +358,19 @@ function Teris(props) {
             deleteChecking(shape)
             setShape(newShape)
 
-        } else if (halfTwo) { // trường hợp xém vuông thứ hai 5 6 18 19 => 5 17 16 28 
+        } else if (halfTwo) { // trường hợp xém vuông thứ hai 5 6 18 19 => 5 17 16 28
 
             const newShape = [shape[0], shape[1] + 11, shape[2] - 2, shape[3] + 9]
 
             // còn mảng này để kiểm tra trước khi xoay những ô đó tồn tại hay chưa
             const newCombination = [shape[1] + 11, shape[2] - 2, shape[3] + 9] 
             
+            // Trước khi xoay kiểm tra vị trí bên phải có hợp lệ hay không
+            const flagLeft = checkRight(newCombination)
+            if (flagLeft){
+                return
+            }
+
             if (combinationCells(newCombination)){
                 return
             }
@@ -258,6 +385,12 @@ function Teris(props) {
             // còn mảng này để kiểm tra trước khi xoay những ô đó tồn tại hay chưa
             const newCombination = [shape[2] + 2, shape[3] + 2] 
             
+            // Trước khi xoay kiểm tra vị trí bên phải có hợp lệ hay không
+            const flagRight = checkLeft(newCombination)
+            if (flagRight){
+                return
+            }
+
             if (combinationCells(newCombination)){
                 return
             }
@@ -272,6 +405,12 @@ function Teris(props) {
             // còn mảng này để kiểm tra trước khi xoay những ô đó tồn tại hay chưa
             const newCombination = [shape[1] - 11, shape[2] - 2] 
             
+            // Trước khi xoay kiểm tra vị trí bên phải có hợp lệ hay không
+            const flagLeft = checkRight(newCombination)
+            if (flagLeft){
+                return
+            }
+
             if (combinationCells(newCombination)){
                 return
             }
@@ -298,7 +437,15 @@ function Teris(props) {
             const newShape = [shape[0] - 1, shape[1] - 11, shape[2] - 11, shape[3] - 12]
 
             // còn mảng này để kiểm tra trước khi xoay những ô đó tồn tại hay chưa
-            const newCombination = [shape[0] - 1, shape[2] - 11] 
+            const newCombination = [shape[0] - 1, shape[2] - 11]
+
+            const newCheck = [shape[2] - 11]
+
+            // Trước khi xoay kiểm tra vị trí bên phải có hợp lệ hay không
+            const flagRight = checkLeft(newCheck)
+            if (flagRight){
+                return
+            }         
             
             if (combinationCells(newCombination)){
                 return
@@ -326,7 +473,13 @@ function Teris(props) {
             const newShape = [shape[0], shape[1] - 1, shape[2] - 1, shape[3] - 11]
 
             // còn mảng này để kiểm tra trước khi xoay những ô đó tồn tại hay chưa
-            const newCombination = [shape[1] - 1] 
+            const newCombination = [shape[1] - 1]
+
+            // Trước khi xoay kiểm tra vị trí bên phải có hợp lệ hay không
+            const flagLeft = checkRight(newCombination)
+            if (flagLeft){
+                return
+            }             
             
             if (combinationCells(newCombination)){
                 return
@@ -368,7 +521,13 @@ function Teris(props) {
             const newShape = [shape[0], shape[1] + 9, shape[2] - 2, shape[3] - 13]
 
             // còn mảng này để kiểm tra trước khi xoay những ô đó tồn tại hay chưa
-            const newCombination = [shape[1] + 9, shape[2] - 2, shape[3] - 13]   
+            const newCombination = [shape[1] + 9, shape[2] - 2, shape[3] - 13]
+
+            // Trước khi xoay kiểm tra vị trí bên phải có hợp lệ hay không
+            const flagLeft = checkRight(newCombination)
+            if (flagLeft){
+                return
+            }
 
             if (combinationCells(newCombination)){
                 return
@@ -382,7 +541,13 @@ function Teris(props) {
             const newShape = [shape[0], shape[1] + 2, shape[2] + 2, shape[3] + 2]
 
             // còn mảng này để kiểm tra trước khi xoay những ô đó tồn tại hay chưa
-            const newCombination = [shape[2] - 2, shape[3] - 13]               
+            const newCombination = [shape[2] + 2, shape[3] + 2]   
+            
+            // Trước khi xoay kiểm tra vị trí bên phải có hợp lệ hay không
+            const flagRight = checkLeft(newCombination)
+            if (flagRight){
+                return
+            }            
 
             if (combinationCells(newCombination)){
                 return
@@ -453,119 +618,119 @@ function Teris(props) {
 
         if (flag) {
             placeChecking(shape)
-            ramdomTeris()
+            // ramdomTeris()
             return
         }
 
         if (horizontal) { // trường hợp ngang 4 số liền nhau 5 6 7 8
-            console.log('Hinh nam ngang')
+            // console.log('Hinh nam ngang')
             for (let i = 0; i < shape.length; i++) {
                 if (cell[shape[i] + 12].classList.contains('checking')) {
                     placeChecking(shape)
-                    ramdomTeris()
+                    // ramdomTeris()
                     return
                 }
             }
         } else if (verical){ // trường hợp đứng 5 17 29 41
             if (cell[shape[3] + 12].classList.contains('checking')) {
                 placeChecking(shape)
-                ramdomTeris()
+                // ramdomTeris()
                 return
             }
         } else if (square) { // trường hợp vuông 5 6 17 18
-            console.log('Hinh vuong')
+            // console.log('Hinh vuong')
             for (let i = shape.length - 1; i > 1; i--){
                 if (cell[shape[i] + 12].classList.contains('checking')) {
                     placeChecking(shape)
-                    ramdomTeris()
+                    // ramdomTeris()
                     return
                 }
             }
         } else if (halfOne) { // trường hợp xém vuông thứ nhất 5 6 16 17
-            console.log('hinh xem vuong thu 1')
+            // console.log('hinh xem vuong thu 1')
             for (let i = 1; i < shape.length; i++){
                 if (cell[shape[i] + 12].classList.contains('checking')) {
                     placeChecking(shape)
-                    ramdomTeris()
+                    // ramdomTeris()
                     return
                 }
             }
         } else if (halfTwo) { // trường hợp xém vuông thứ hai 5 6 18 19
-            console.log('hinh xem vuong thu 2')
+            // console.log('hinh xem vuong thu 2')
             if (cell[shape[0] + 12].classList.contains('checking') || cell[shape[2] + 12].classList.contains('checking') || 
                 cell[shape[3] + 12].classList.contains('checking')) {
                 placeChecking(shape)
-                ramdomTeris()
+                // ramdomTeris()
                 return
             }
         } else if (halfThree) { // trường hợp xém vuông thứ ba 5 17 16 28
-            console.log('hinh xem vuong thu 3')
+            // console.log('hinh xem vuong thu 3')
             if (cell[shape[1] + 12].classList.contains('checking') || cell[shape[3] + 12].classList.contains('checking')) {
                 placeChecking(shape)
-                ramdomTeris()
+                // ramdomTeris()
                 return
             }
         } else if (halfFour){ // trường hợp xém vuông thứ tư 5 17 18 30
-            console.log('hinh xem vuong thu 4')
+            // console.log('hinh xem vuong thu 4')
             if (cell[shape[1] + 12].classList.contains('checking') || cell[shape[3] + 12].classList.contains('checking')) {
                 placeChecking(shape)
-                ramdomTeris()
+                // ramdomTeris()
                 return
             }
         } else if (TOne) { // trường hợp xém T thứ nhất 5 16 17 18
-            console.log('hinh xem T thu 1')
+            // console.log('hinh xem T thu 1')
             for (let i = 1; i < shape.length; i++){
                 if (cell[shape[i] + 12].classList.contains('checking')) {
                     placeChecking(shape)
-                    ramdomTeris()
+                    // ramdomTeris()
                     return
                 }
             }
         } else if (TTwo) { // trường hợp xém T thứ hai 5 16 17 29
-            console.log('hinh xem T thu 2')
+            // console.log('hinh xem T thu 2')
             if (cell[shape[1] + 12].classList.contains('checking') || cell[shape[3] + 12].classList.contains('checking')) {
                 placeChecking(shape)
-                ramdomTeris()
+                // ramdomTeris()
                 return
             }
         } else if (TThree) { // trường hợp xém T thứ ba 4 5 6 17
-            console.log('hinh xem T thu 3')
+            // console.log('hinh xem T thu 3')
             if (cell[shape[0] + 12].classList.contains('checking') || cell[shape[2] + 12].classList.contains('checking')
                 || cell[shape[3] + 12].classList.contains('checking')) {
                 placeChecking(shape)
-                ramdomTeris()
+                // ramdomTeris()
                 return
             }
         } else if (TFour) { // trường hợp xém T thứ tu 5 17 18 29
-            console.log('hinh xem T thu 4')
+            // console.log('hinh xem T thu 4')
             for (let i = shape.length - 1; i > 1; i--){
                 if (cell[shape[i] + 12].classList.contains('checking')) {
                     placeChecking(shape)
-                    ramdomTeris()
+                    // ramdomTeris()
                     return
                 }
             } 
         } else if (LOne || LFour) { // trường hợp L thu nhat 5 17 18 19 || // trường hợp L thứ tu 5 15 16 17
-            console.log('hinh xem L thu 1 || 4')
+            // console.log('hinh xem L thu 1 || 4')
             for (let i = 1; i < shape.length; i++){
                 if (cell[shape[i] + 12].classList.contains('checking')) {
                     placeChecking(shape)
-                    ramdomTeris()
+                    // ramdomTeris()
                     return
                 }
             }
         } else if (LTwo) { // trường hợp L thu hai 5 6 17 29
-            console.log('hinh xem L thu 2')
+            // console.log('hinh xem L thu 2')
             if (cell[shape[1] + 12].classList.contains('checking') || cell[shape[3] + 12].classList.contains('checking')) {
                 placeChecking(shape)
-                ramdomTeris()
+                // ramdomTeris()
                 return
             } 
         } else if (LThree) { // trường hợp L thu ba 5 6 18 30
-            console.log('hinh xem L thu 3')
+            // console.log('hinh xem L thu 3')
             if (cell[shape[0] + 12].classList.contains('checking') || cell[shape[3] + 12].classList.contains('checking')) {
                 placeChecking(shape)
-                ramdomTeris()
+                // ramdomTeris()
                 return
             } 
         }

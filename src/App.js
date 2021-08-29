@@ -9,7 +9,7 @@ import logo from "./global/logo.png";
 import SignIn from "./component/Auth/SignIn";
 import SignUp from "./component/Auth/SignUp";
 import Profile from "./component/Auth/Profile";
-import Teris from "./component/Teris/Teris";
+import Tetris from "./component/Tetris/Tetris";
 
 function App() {
   return (
@@ -33,7 +33,7 @@ function App() {
             <Route path="/signin" component={SignIn} />
             <Route path="/signup" component={SignUp} />
             <Route path="/profile" component={Profile} />
-            <Route path="/teris" component={Teris} />
+            <Route path="/tetris" component={Tetris} />
           </Switch>
           <Footer />
       </BrowserRouter>

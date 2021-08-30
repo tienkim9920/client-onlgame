@@ -42,6 +42,12 @@ function Home(props) {
 
     }
 
+    const playSnake = () => {
+
+        history.push('/snake')
+
+    }
+
     useEffect(() => {
 
         // Gọi hàm
@@ -93,7 +99,7 @@ function Home(props) {
                             <h5 className="card-title">RẮN SĂN MỒI</h5>
                             <p className="card-text">Bạn muốn săn lùng con mồi chỉ trọn vẹn trong 1 giầy
                             đồng hồ thì ngay bây giờ hãy cùng trải nghiệm tựa game rắn săn mồi này để thể bạn là ai.</p>
-                            <a href="#" className="btn btn-primary">Bắt đầu thôi</a>
+                            <div onClick={playSnake} className="btn btn-primary">Bắt đầu thôi</div>
                         </div>
                     </div>
                     <div className="card">

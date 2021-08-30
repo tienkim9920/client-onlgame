@@ -1,0 +1,30 @@
+.wrapper-snake{
+    margin: 2rem auto 2rem auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background-color: #fff;
+    width: 65%;
+    border-radius: 0px 5px 5px 0px;
+}
+
+.snake{
+    position: relative;
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(14, auto);
+}
+
+.colum-snake {
+    width: 35px;
+    height: 35px;
+    border: 1px solid #6e6e6e;
+    background-color: #eeeeee;
+}
+
+.colum-snake.food{
+    background-color: #d64646;
+}
+
+.colum-snake.move{
+    background-color: #2c3c3f;
+}

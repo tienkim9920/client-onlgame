@@ -10,6 +10,7 @@ import SignIn from "./component/Auth/SignIn";
 import SignUp from "./component/Auth/SignUp";
 import Profile from "./component/Auth/Profile";
 import Tetris from "./component/Tetris/Tetris";
+import Snake from "./component/Snake/Snake";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
             <Route path="/signup" component={SignUp} />
             <Route path="/profile" component={Profile} />
             <Route path="/tetris" component={Tetris} />
+            <Route path="/snake" component={Snake} />
           </Switch>
           <Footer />
       </BrowserRouter>

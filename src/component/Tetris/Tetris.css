@@ -87,12 +87,12 @@
 
 .typing-D{
     margin: 0 .5rem;
-    padding: .8rem 1.3rem;
+    padding: .8rem 1.35rem;
 }
 
 .typing-A{
     margin: 0 .5rem;
-    padding: .8rem 1.3rem;
+    padding: .8rem 1.35rem;
 }
 
 .description{
@@ -163,4 +163,39 @@
     margin-top: 2rem;
     display: flex;
     justify-content: center;
+}
+
+.control-mobile{
+    display: none;
+}
+
+@media only screen and (max-width: 600px){
+    .tetris1 { grid-area: down; }
+    .tetris2 { grid-area: up; }
+  
+    .wrapper-teris{
+        grid-template-columns: 1fr !important;
+        width: 100% !important;
+        grid-template-areas:
+        'up'
+        'down';
+    }
+
+    .layout-section-teris{
+        width: 100% !important;
+        margin: auto;
+    }
+
+    .colum {
+        width: 32.5px !important;
+        height: 32.5px !important;
+    }
+
+    .guide {
+        padding: 0 1rem 1.5rem 1rem !important;
+    }
+
+    .control-mobile{
+        display: block !important;
+    }
 }

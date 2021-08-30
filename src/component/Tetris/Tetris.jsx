@@ -863,6 +863,49 @@ function Teris(props) {
         setShape(SHAPE[Math.floor(Math.random() * SHAPE.length)])
     }
 
+    // Control Mobile
+    const handlerUp = () => {
+        if (pause === 2){
+            return
+        }
+
+        if (shape){
+            routeShape()
+        }
+    }
+
+    const handlerLeft = () => {
+        if (pause === 2){
+            return
+        }
+
+        if (shape){
+            moveLeftTeris(16, 12) 
+        }
+    }
+
+    const handlerDown = () => {
+        if (pause === 2){
+            return
+        }
+
+        if (shape){
+            moveDownTeris(12) 
+        }
+    }
+
+    const handlerRight = () => {
+        if (pause === 2){
+            return
+        }
+
+        if (shape){
+            moveRightTeris(16, 12)
+        }
+    }
+
+
+
     return (
         <div className="layout-section-teris container">
             <motion.div className="wrapper-teris"
@@ -871,7 +914,7 @@ function Teris(props) {
                 animate="visible"
                 exit="exit"
             >
-                <div className="tetris">
+                <div className="tetris tetris1">
                     {
                         [...Array(192)].map((x, i) => (
                             <div key={i} data-colum className="colum"></div>
@@ -882,9 +925,13 @@ function Teris(props) {
                             <input onClick={handlerRestart} className="btn-restart-tetris" type="submit" value="Chơi lại" />
                         </div>)
                     }
- 
+                    {
+                        !start && (<div className="restart-tetris">
+                            <input onClick={handlerStart} className="btn-restart-tetris" type="submit" value="Bắt đầu" />
+                        </div>)
+                    }
                 </div>
-                <div className="guide">
+                <div className="guide tetris2">
                     <div className="group-guide-header">
                         <h4>Hướng dẫn</h4>
                     </div>
@@ -918,6 +965,19 @@ function Teris(props) {
                         {
                             pause === 2 && <input onClick={handlerContinue} className="btn-start-tetris" type="submit" value="Tiếp tục" />
                         }
+                    </div>
+                </div>
+                <div className="control-mobile">
+                    <div className="m-2">Điều khiển</div>
+                    <div className="group-guide-play">
+                        <div className="d-flex justify-content-center">
+                            <div className="guide-typing" onClick={handlerUp}>W</div>
+                        </div>
+                        <div className="d-flex justify-content-center mt-2">
+                            <div className="guide-typing typing-A" onClick={handlerLeft}>A</div>
+                            <div className="guide-typing typing-S" onClick={handlerDown}>S</div>
+                            <div className="guide-typing typing-D" onClick={handlerRight}>D</div>
+                        </div>
                     </div>
                 </div>
             </motion.div>

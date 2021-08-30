@@ -37,9 +37,11 @@ function Teris(props) {
 
     const [restart, setRestart] = useState(false)
 
-    useEffect(() => {
+    const [start, setStart] = useState(false)
 
-        ramdomTeris()
+    const [pause, setPause] = useState(0)
+
+    useEffect(() => {
 
         // Hàm này dùng để bấm phím
         onTyping()
@@ -58,6 +60,9 @@ function Teris(props) {
             })
 
             const interval = setInterval(() => {
+                if (pause === 2){
+                    return
+                }
                 moveDownTeris(12)
             }, 750)
         
@@ -66,11 +71,50 @@ function Teris(props) {
 
     }, [shape])
 
+    const handlerStart = (e) => {
+        e.preventDefault()
+
+        setStart(true)
+
+        setRestart(false)
+
+        setPause(1)
+
+        restartTetris()
+
+        ramdomTeris()
+    }
+
     const handlerRestart = (e) => {
         e.preventDefault()
 
         setRestart(false)
 
+        setScore(0)
+
+        restartTetris() // xóa tất cả
+
+        ramdomTeris() // tạo ra cái mới
+
+        setMove(87)
+    }
+
+    const handlerPause = (e) => {
+        e.preventDefault()
+
+        setPause(2)
+    }
+
+    const handlerContinue = (e) => {
+        e.preventDefault()
+
+        setPause(1)
+
+        moveDownTeris(12)
+    }
+
+    // Hàm này dùng để restart tetris
+    function restartTetris(){
         const cell = document.querySelectorAll('[data-colum]')
 
         for (let i = 0; i < cell.length; i++){
@@ -79,10 +123,6 @@ function Teris(props) {
             }
             cell[i].classList.remove('checking')
         }
-
-        ramdomTeris()
-
-        setMove(87)
     }
 
     // Hàm này dùng để đánh dấu ô và hạ khối hình xuống sau đó tính điểm
@@ -104,10 +144,11 @@ function Teris(props) {
             return
         }
 
+        let point = 0
         const row = 16
         const colum = 12
         // row * colum
-
+        
         for (let i = 0; i < row; i++){
             
             let flag = 0
@@ -121,18 +162,19 @@ function Teris(props) {
 
             // Có thì bắt đầu xóa
             if (flag === colum){
-                console.log(flag)
+
+                point += 10 // Cộng điểm
+
                 for (let j = i * colum; j < i * colum + colum; j++){
                     removeCheckingRow(j)
                 }
-
-                setScore(score + 10)
 
                 // Xong hạ xuống
                 lowerShape(i, 12)
             }
         }
-
+        
+        setScore(score + point)
         ramdomTeris()
     }
 
@@ -170,6 +212,10 @@ function Teris(props) {
 
     // Hàm này để gọi lại những function move
     useEffect(() => {
+
+        if (pause === 2){
+            return
+        }
 
         if (shape){
             if (move === 65) {
@@ -861,6 +907,17 @@ function Teris(props) {
                     <div className="score-tetris">
                         <div className="score-tetris-title">Điểm</div>
                         <div className="score-tetris-detail">{score}</div>
+                    </div>
+                    <div className="tetris-start">
+                        {
+                            !start && <input onClick={handlerStart} className="btn-start-tetris" type="submit" value="Bắt đầu" />
+                        }
+                        {
+                            pause === 1 && <input onClick={handlerPause} className="btn-start-tetris" type="submit" value="Dừng lại" />
+                        }
+                        {
+                            pause === 2 && <input onClick={handlerContinue} className="btn-start-tetris" type="submit" value="Tiếp tục" />
+                        }
                     </div>
                 </div>
             </motion.div>

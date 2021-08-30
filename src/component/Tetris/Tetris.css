@@ -144,3 +144,23 @@
     background-color: #2c3c3f;
     color: #fff;
 }
+
+.btn-start-tetris{
+    background-color: #2c3c3f;
+    color: #fff;
+    padding: .4rem 1.6rem;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+}
+
+.btn-start-tetris:hover{
+    background-color: #1b2629;
+    color: #fff;
+}
+
+.tetris-start{
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}

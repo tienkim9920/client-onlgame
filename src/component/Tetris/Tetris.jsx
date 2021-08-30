@@ -33,6 +33,10 @@ function Teris(props) {
 
     const [move, setMove] = useState(null)
 
+    const [score, setScore] = useState(0)
+
+    const [restart, setRestart] = useState(false)
+
     useEffect(() => {
 
         ramdomTeris()
@@ -62,6 +66,25 @@ function Teris(props) {
 
     }, [shape])
 
+    const handlerRestart = (e) => {
+        e.preventDefault()
+
+        setRestart(false)
+
+        const cell = document.querySelectorAll('[data-colum]')
+
+        for (let i = 0; i < cell.length; i++){
+            for (let j = 0; j < COLOR.length; j++){
+                cell[i].classList.remove(COLOR[j])
+            }
+            cell[i].classList.remove('checking')
+        }
+
+        ramdomTeris()
+
+        setMove(87)
+    }
+
     // Hàm này dùng để đánh dấu ô và hạ khối hình xuống sau đó tính điểm
     function placeChecking(shape) {
         const cell = document.querySelectorAll('[data-colum]')
@@ -77,6 +100,7 @@ function Teris(props) {
         if (flag){
             console.log("Ban da thua")
             setShape(null)
+            setRestart(true)
             return
         }
 
@@ -101,6 +125,8 @@ function Teris(props) {
                 for (let j = i * colum; j < i * colum + colum; j++){
                     removeCheckingRow(j)
                 }
+
+                setScore(score + 10)
 
                 // Xong hạ xuống
                 lowerShape(i, 12)
@@ -799,12 +825,43 @@ function Teris(props) {
                 animate="visible"
                 exit="exit"
             >
-                <div className="teris">
+                <div className="tetris">
                     {
                         [...Array(192)].map((x, i) => (
                             <div key={i} data-colum className="colum"></div>
                         ))
                     }
+                    {
+                        restart && (<div className="restart-tetris">
+                            <input onClick={handlerRestart} className="btn-restart-tetris" type="submit" value="Chơi lại" />
+                        </div>)
+                    }
+ 
+                </div>
+                <div className="guide">
+                    <div className="group-guide-header">
+                        <h4>Hướng dẫn</h4>
+                    </div>
+                    <div className="group-guide-play">
+                        <div className="d-flex justify-content-center">
+                            <div className="guide-typing">W</div>
+                        </div>
+                        <div className="d-flex justify-content-center mt-2">
+                            <div className="guide-typing typing-A">A</div>
+                            <div className="guide-typing typing-S">S</div>
+                            <div className="guide-typing typing-D">D</div>
+                        </div>
+                    </div>
+                    <div className="description">
+                        <div>W: Đổi hình</div>
+                        <div>A: Di chuyển trái</div>
+                        <div>S: Di chuyển phải</div>
+                        <div>D: Di chuyển xuống</div>
+                    </div>
+                    <div className="score-tetris">
+                        <div className="score-tetris-title">Điểm</div>
+                        <div className="score-tetris-detail">{score}</div>
+                    </div>
                 </div>
             </motion.div>
         </div>

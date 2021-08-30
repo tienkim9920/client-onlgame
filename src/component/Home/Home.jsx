@@ -38,12 +38,7 @@ function Home(props) {
 
     const playTetris = () => {
 
-        if (sessionStorage.getItem('userId')){
-            history.push('/tetris')
-            return
-        }
-
-        history.push('/signin')
+        history.push('/tetris')
 
     }
 

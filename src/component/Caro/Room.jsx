@@ -85,7 +85,7 @@ function Room(props) {
     const createRoom = () => {
         console.log("Tao Phong")
 
-        const roomID = Math.floor(Math.random() * 999)
+        const roomID = Math.floor(Math.random() * 999).toString()
 
         socket.emit('room', roomID)
 

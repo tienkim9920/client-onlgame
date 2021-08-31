@@ -31,23 +31,29 @@ function Snake(props) {
 
     const [food, setFood] = useState(null)
 
-    const [body, setBody] = useState([76, 77])  // 75 76
+    const [body, setBody] = useState(76)
 
     const [move, setMove] = useState(null)
 
+    const [direct, setDirect] = useState('left')
+
+    const [level, setLevel] = useState(null)
+
+    const [play, setPlay] = useState(null)
+
     useEffect(() => {
 
-        if (start) {
+        if (play) {
             randomFood()
 
             onTyping()
         }
 
-    }, [start])
+    }, [play])
 
     useEffect(() => {
 
-        if (start) {
+        if (play) {
 
             if (restart) {
                 return
@@ -55,93 +61,89 @@ function Snake(props) {
 
             const cell = document.querySelectorAll('[data-colum-snake]')
 
-            body.forEach(value => {
-                cell[value].classList.add('move')
-            })
+            cell[body].classList.add('move')
 
             const interval = setInterval(() => {
                 moveBody()
-            }, 250)
+            }, level)
 
             return () => clearInterval(interval)
         }
 
-    }, [body, start])
+    }, [body, play])
 
     // Hàm này dùng để di chuyển
     function moveBody() {
 
         const cell = document.querySelectorAll('[data-colum-snake]')
 
-        if (cell[body[0]].classList.contains('food') || cell[body[1]].classList.contains('food')){
+        if (cell[body].classList.contains('food')){
 
-            cell[body[0]].classList.remove('food')
-            cell[body[1]].classList.remove('food')
+            cell[body].classList.remove('food')
 
             randomFood()
 
             setScore(score + 10)
         }
 
-        const XLeft = moveXLeft()
-        const XRight = moveXRight()
-        const YUp = moveYUp(14)
-        const YDown = moveYDown(14)
+        removeIndex(body) // Xóa vị trí cũ
 
-        if (XLeft) { // Di chuyen sang trai
+        if (direct === 'left') { // Di chuyen sang trai
 
             const flag = checkXLeft()
             if (flag) {
                 setRestart(true)
 
-                // Xóa food
-                cell[food].classList.remove('food')
+                for (let i = 0; i < cell.length; i++){
+                    // Xóa food
+                    cell[i].classList.remove('food')
+                }
             }
-            removeIndex(body)
-            updateXLeft(body)
+            updateXLeft()
         }
 
-        if (XRight) { // Di chuyen sang phai
+        if (direct === 'right') { // Di chuyen sang phai
 
             const flag = checkXRight()
             if (flag) {
                 setRestart(true)
 
-                // Xóa food
-                cell[food].classList.remove('food')
+                for (let i = 0; i < cell.length; i++){
+                    // Xóa food
+                    cell[i].classList.remove('food')
+                }
             }
-            removeIndex(body)
-            updateXRight(body)
+            updateXRight()
         }
 
-        if (YUp) { // Di chuyen di len
+        if (direct === 'up') { // Di chuyen di len
 
             // Kiểm tra xem con rắn có đụng vào tường hay chưa
             const flag = checkYUp()
             if (flag) {
                 setRestart(true)
 
-                // Xóa food
-                cell[food].classList.remove('food')
+                for (let i = 0; i < cell.length; i++){
+                    // Xóa food
+                    cell[i].classList.remove('food')
+                }
             }
-
-            removeIndex(body)
-            updateYUp(body, 14)
+            updateYUp()
         }
 
-        if (YDown) { // Di chuyen di xuong
+        if (direct === 'down') { // Di chuyen di xuong
 
             // Kiểm tra xem con rắn có đụng vào tường hay chưa
             const flag = checkYDown()
             if (flag) {
                 setRestart(true)
 
-                // Xóa food
-                cell[food].classList.remove('food')
+                for (let i = 0; i < cell.length; i++){
+                    // Xóa food
+                    cell[i].classList.remove('food')
+                }
             }
-
-            removeIndex(body)
-            updateYDown(body, 14)
+            updateYDown()
         }
 
     }
@@ -149,7 +151,7 @@ function Snake(props) {
     // Hàm này so sánh
     function combination(pos) {
         for (let i = 0; i < pos.length; i++) {
-            if (pos[i] === body[0]) {
+            if (pos[i] === body) {
                 return true
             }
         }
@@ -205,140 +207,37 @@ function Snake(props) {
         return false
     }
 
-    // Hàm này kiểm tra xem nó có phải di chuyển left không
-    function moveXLeft() {
-        if (body[1] - body[0] === 1) {
-            return true
-        }
-        return false
-    }
-
-    // Hàm này kiểm tra xem nó có phải di chuyển right không
-    function moveXRight() {
-        if (body[0] - body[1] === 1) {
-            return true
-        }
-        return false
-    }
-
-    // Hàm này kiểm tra xem nó có phải di chuyển up không
-    function moveYUp(colum) {
-        if (body[1] - body[0] === colum) {
-            return true
-        }
-        return false
-    }
-
-    // Hàm này kiểm tra xem nó có phải di chuyển down không
-    function moveYDown(colum) {
-        if (body[0] - body[1] === colum) {
-            return true
-        }
-        return false
-    }
-
     // Hàm này xóa
-    function removeIndex(body) {
-        const cell = document.querySelectorAll('[data-colum-snake]')
+    function removeIndex(index) {
 
-        body.forEach(value => {
-            cell[value].classList.remove('move')
-        })
+        const cell = document.querySelectorAll('[data-colum-snake]')[index]
+
+        cell.classList.remove('move')
     }
 
     // Hàm này update di chuyển left 77, 91, 105 -> 76 77 91 || 105, 91, 77 -> 104 105 91
-    function updateXLeft(body) {
-        let newBody = []
-
-        for (let i = 0; i < body.length; i++) {
-            if (i > 0 && body[i] - body[i - 1] === 14){  // Đang di chuyển lên mà rẽ trái
-                const newIndex = body[i] - 14
-                newBody.push(newIndex)
-                continue
-            }
-            if (i > 0 && body[i - 1] - body[i] === 14){ // Đang di chuyển xuống mà rẽ trái
-                const newIndex = body[i] + 14
-                newBody.push(newIndex)
-                continue
-            }
-            const index = body[i] - 1 
-            newBody.push(index)
-        }
-
-        setBody(newBody)
+    function updateXLeft() {
+        setBody(body - 1)
     }
 
     // Hàm này update di chuyển right 77, 91, 105 -> 78 77 91 || 105, 91, 77 -> 106 105 91
-    function updateXRight(body) {
-        let newBody = []
-
-        for (let i = 0; i < body.length; i++) {
-            if (i > 0 && body[i] - body[i - 1] === 14){  // Đang di chuyển lên mà rẽ phải
-                const newIndex = body[i] - 14
-                newBody.push(newIndex)
-                continue
-            }
-            if (i > 0 && body[i - 1] - body[i] === 14){ // Đang di chuyển xuống mà rẽ phải
-                const newIndex = body[i] + 14
-                newBody.push(newIndex)
-                continue
-            }
-            const index = body[i] + 1 
-            newBody.push(index)
-        }
-
-        setBody(newBody)
+    function updateXRight() {
+        setBody(body + 1)
     }
 
     // Hàm này update di chuyển up 77, 78, 79 -> 63 77 78 || 79, 78, 77 -> 78 79 65
-    function updateYUp(body, colum) {
-        let newBody = []
-
-        for (let i = 0; i < body.length; i++) {
-            if (i > 0 && body[i] - body[i - 1] === 1){  // Đang di chuyển trái mà rẽ lên
-                const newIndex = body[i] - 1
-                newBody.push(newIndex)
-                continue
-            }
-            if (i > 0 && body[i - 1] - body[i] === 1){ // Đang di chuyển phải mà rẽ lên
-                const newIndex = body[i] + 1
-                newBody.push(newIndex)
-                continue
-            }
-            const index = body[i] - colum
-            newBody.push(index)
-        }
-
-        setBody(newBody)
+    function updateYUp() {
+        setBody(body - 14)
     }
 
     // Hàm này update di chuyển down 77 78, 78 77
-    function updateYDown(body, colum) { 
-        let newBody = []
-
-        for (let i = 0; i < body.length; i++) {
-            if (i > 0 && body[i] - body[i - 1] === 1){  // Đang di chuyển trái mà rẽ xuống
-                const newIndex = body[i] - 1
-                newBody.push(newIndex)
-                continue
-            }
-            if (i > 0 && body[i - 1] - body[i] === 1){ // Đang di chuyển phải mà rẽ xuống
-                const newIndex = body[i] + 1
-                newBody.push(newIndex)
-                continue
-            }
-            const index = body[i] + colum
-            newBody.push(index)
-        }
-
-        setBody(newBody)
+    function updateYDown() { 
+        setBody(body + 14)
     }
 
     function randomFood() {
 
         const index = Math.floor(Math.random() * 196);
-
-        setFood(index)
 
         const cell = document.querySelectorAll('[data-colum-snake]')[index]
 
@@ -349,88 +248,43 @@ function Snake(props) {
     // Hàm này để gọi lại những function move
     useEffect(() => {
 
-        const XLeft = moveXLeft()
-        const XRight = moveXRight()
-        const YUp = moveYUp(14)
-        const YDown = moveYDown(14)
-
         if (restart){
             return
         }
 
         if (start) {
             if (move === 65) { // Di chuyển sang trái
-                if (XLeft){
+                if (direct === 'left'){
                     return
                 }
-
-                if (XRight){
-                    return
-                }
-
-                moveSnakeLeft()
+                setDirect('left')
+                moveBody()
                 setMove(null)
             } else if (move === 87) { // Di chuyển đi lên
-                if (YUp){
+                if (direct === 'up'){
                     return
                 }
-
-                if (YDown){
-                    return
-                }
-
+                setDirect('up')
+                moveBody()
                 setMove(null)
-                moveSnakeUp()
             } else if (move === 68) { // Di chuyển sang phải
-                if (XLeft){
+                if (direct === 'right'){
                     return
                 }
-
-                if (XRight){
-                    return
-                }
-                
-                moveSnakeRight()
+                setDirect('right')
+                moveBody()
                 setMove(null)
             } else if (move === 83) { // Di chuyển đi xuống
-                if (YUp){
+                if (direct === 'down'){
                     return
                 }
-
-                if (YDown){
-                    return
-                }
-
-                moveSnakeDown()
+                setDirect('down')
+                moveBody()
                 setMove(null)
             }
         }
 
     }, [move])
-
-    // Hàm này dùng để rẽ hướng trái
-    function moveSnakeLeft(){
-        removeIndex(body)
-        updateXLeft(body)
-    }
-
-    // Hàm này dùng để rẽ hướng phải
-    function moveSnakeRight(){
-        removeIndex(body)
-        updateXRight(body)
-    }
-
-    // Hàm này dùng để rẽ hướng lên
-    function moveSnakeUp(){
-        removeIndex(body)
-        updateYUp(body, 14)
-    }
-
-    // Hàm này dùng để rẽ hướng xuống
-    function moveSnakeDown(){
-        removeIndex(body)
-        updateYDown(body, 14)
-    }
 
     function onTyping() {
         document.addEventListener('keydown', (e) => {
@@ -450,6 +304,7 @@ function Snake(props) {
         e.preventDefault()
 
         setStart(true)
+        setLevel(true)
     }
 
     const handlerRestart = (e) => {
@@ -458,7 +313,7 @@ function Snake(props) {
         // Khởi tạo lại ban đầu
         setRestart(false)
         randomFood()
-        setBody([75, 76])
+        setBody(75)
         setScore(0)
     }
 
@@ -468,8 +323,8 @@ function Snake(props) {
             return
         }
 
-        if (start){
-            moveSnakeUp()
+        if (play){
+            setMove(87)
         }
     }
 
@@ -478,8 +333,8 @@ function Snake(props) {
             return
         }
 
-        if (start){
-            moveSnakeLeft()
+        if (play){
+            setMove(65)
         }
     }
 
@@ -488,8 +343,8 @@ function Snake(props) {
             return
         }
 
-        if (start){
-            moveSnakeDown()
+        if (play){
+            setMove(83)
         }
     }
 
@@ -498,9 +353,28 @@ function Snake(props) {
             return
         }
 
-        if (start){
-            moveSnakeRight()
+        if (play){
+            setMove(68)
         }
+    }
+
+    const handlerEasy = (e) => {
+        e.preventDefault()
+
+        setLevel(500)
+        setPlay(true)
+    }
+    const handlerNormal = (e) => {
+        e.preventDefault()
+
+        setLevel(300)
+        setPlay(true)
+    }
+    const handlerHard = (e) => {
+        e.preventDefault()
+
+        setLevel(100)
+        setPlay(true)
     }
 
     return (
@@ -528,6 +402,16 @@ function Snake(props) {
                     {
                         !start && (<div className="restart-tetris">
                             <input onClick={handlerStart} className="btn-restart-tetris" type="submit" value="Bắt đầu" />
+                        </div>)
+                    }
+                    {
+                        !play && start && (<div className="restart-tetris">
+                            <div className="text-center text-white">
+                                <h5>Bạn vui lòng chọn cấp độ</h5>
+                                <input onClick={handlerEasy} className="btn-restart-tetris" type="submit" value="Dễ" />&nbsp;
+                                <input onClick={handlerNormal} className="btn-restart-tetris" type="submit" value="Thường" />&nbsp;
+                                <input onClick={handlerHard} className="btn-restart-tetris" type="submit" value="Khó" />
+                            </div>
                         </div>)
                     }
                 </div>

@@ -21,11 +21,15 @@
 }
 
 .colum-snake.food{
-    background-color: #d64646;
+    background-image: url(../../global/phomai.jpg);
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
 .colum-snake.move{
-    background-color: #2c3c3f;
+    background-image: url(../../global/snake.png);
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
 @media only screen and (max-width: 600px){
@@ -34,15 +38,15 @@
   
     .wrapper-snake{
         grid-template-columns: 1fr !important;
-        width: 100% !important;
+        width: 90% !important;
         grid-template-areas:
         'up'
         'down';
     }
 
     .colum-snake {
-        width: 27.7px !important;
-        height: 27.7px !important;
+        width: 25px !important;
+        height: 25px !important;
     }
 
     .guide {
